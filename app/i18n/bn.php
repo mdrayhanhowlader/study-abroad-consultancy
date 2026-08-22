@@ -95,6 +95,7 @@ return [
         'slogan'              => 'মানামি নেতৃত্ব দেয়, আপনি সফল হন।',
         'cta_primary'         => 'জাপান পাথওয়ে দেখুন',
         'cta_secondary'       => 'ফ্রি মূল্যায়ন নিন',
+        'cta_quick_order'     => 'দ্রুত অর্ডার',
         'countdown_eyebrow'   => 'তাড়াতাড়ি!',
         'countdown_label'     => 'আসন্ন ইভেন্টে যোগ দিন',
         'countdown_days'      => 'দিন',

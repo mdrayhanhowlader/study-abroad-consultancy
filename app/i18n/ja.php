@@ -95,6 +95,7 @@ return [
         'slogan'              => 'Manami が導く、あなたが成功する。',
         'cta_primary'         => '日本への道を見る',
         'cta_secondary'       => '無料相談を予約',
+        'cta_quick_order'     => 'Quick Order',
         'countdown_eyebrow'   => 'お早めに！',
         'countdown_label'     => '近日開催のイベントに参加',
         'countdown_days'      => '日',

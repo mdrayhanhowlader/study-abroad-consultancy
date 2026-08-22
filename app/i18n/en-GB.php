@@ -95,6 +95,7 @@ return [
         'slogan'              => 'Manami Leads, You Succeed.',
         'cta_primary'         => 'Explore Japan Pathways',
         'cta_secondary'       => 'Book A Free Assessment',
+        'cta_quick_order'     => 'Quick Order',
         'countdown_eyebrow'   => 'Hurry!',
         'countdown_label'     => 'Join our upcoming event',
         'countdown_days'      => 'Days',

@@ -23,6 +23,10 @@
         <a href="#contact" class="btn btn-secondary">
           <?= h(t('hero.cta_secondary')) ?>
         </a>
+        <a href="<?= h(url('quick-order.php')) ?>" class="btn btn-ghost">
+          <?= h(t('hero.cta_quick_order')) ?>
+          <span class="opacity-80">→</span>
+        </a>
       </div>
 
       <div class="mt-8 inline-flex flex-wrap items-center gap-4 bg-white/90 backdrop-blur-md border border-hair rounded-2xl pl-5 pr-6 py-3 shadow-xl"

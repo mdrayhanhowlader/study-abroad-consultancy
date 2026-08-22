@@ -95,6 +95,7 @@ return [
         'slogan'              => 'Manami का नेतृत्व, आपकी सफलता।',
         'cta_primary'         => 'जापान पाथवे देखें',
         'cta_secondary'       => 'निःशुल्क मूल्यांकन लें',
+        'cta_quick_order'     => 'Quick Order',
         'countdown_eyebrow'   => 'जल्दी करें!',
         'countdown_label'     => 'आगामी कार्यक्रम में शामिल हों',
         'countdown_days'      => 'दिन',
