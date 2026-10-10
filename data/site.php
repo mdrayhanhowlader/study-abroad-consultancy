@@ -29,7 +29,7 @@ return [
     ],
     'nav' => [
         ['key' => 'home',         'href' => 'index.php'],
-        ['key' => 'about',        'href' => 'about.php'],
+        ['key' => 'quick_order',  'href' => 'quick-order.php'],
         [
             'key' => 'study_abroad', 'children' => [
                 ['key' => 'services', 'href' => 'services.php', 'class' => 'section'],
@@ -45,14 +45,10 @@ return [
                 ['key' => 'south_korea',    'href' => 'country/south-korea'],
             ],
         ],
-        [
-            'key' => 'shop', 'children' => [
-                ['key' => 'courses',       'href' => 'courses.php'],
-                ['key' => 'books_courses', 'href' => 'books.php'],
-                ['key' => 'quick_order',   'href' => 'quick-order.php'],
-            ],
-        ],
-        ['key' => 'contact',      'href' => 'contact.php'],
+        ['key' => 'destinations', 'href' => 'destinations.php'],
+        ['key' => 'courses',      'href' => 'courses.php'],
+        ['key' => 'books_courses','href' => 'books.php'],
+        ['key' => 'events',       'href' => 'events.php'],
     ],
     'footer_links' => [
         'privacy' => 'privacy.php',

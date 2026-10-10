@@ -66,6 +66,7 @@ final class DataAdapter
                 'description' => $r['description'] ?? '',
                 'featured'    => (bool) $r['featured'],
                 'active'      => (bool) $r['active'],
+                'image_url'   => Content::mediaUrl(isset($r['image_id']) ? (int) $r['image_id'] : null),
                 'img1'        => self::countryImage($codeSlug, 1),
                 'img2'        => self::countryImage($codeSlug, 2),
             ];

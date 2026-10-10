@@ -2,8 +2,8 @@
 return [
     'section' => [
         'eyebrow'   => 'Our Success Stories',
-        'headline'  => 'Students We Have Sent Abroad',
-        'body'      => 'Over the years, Manami Education has helped thousands of Bangladeshi students reach their dream destinations. Here are a few of their journeys.',
+        'headline'  => 'Our student success stories',
+        'body'      => 'Manami Education has supported more than 1,200 students as they pursued opportunities abroad. Meet a few of them.',
         'total_label' => 'Students Placed Worldwide',
         'total_count' => 1240,
     ],

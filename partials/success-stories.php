@@ -1,9 +1,18 @@
 <?php /** @var array $site */
 $storiesData = require __DIR__ . '/../data/success_stories.php';
 $section = $storiesData['section'];
-$stories = $storiesData['stories'];
+$stories = App\Homepage::stories($storiesData['stories']);
+$section['eyebrow'] = App\Homepage::text('success.eyebrow', $section['eyebrow']);
+$section['headline'] = App\Homepage::text('success.headline', $section['headline']);
+$section['body'] = App\Homepage::text('success.body', $section['body']);
+$section['total_label'] = App\Homepage::text('success.total_label', $section['total_label']);
+$section['total_count'] = (int) App\Homepage::text('success.total_count', (string) $section['total_count']);
+$stories = array_map(static function (array $story): array {
+  $story['photo'] = str_replace('w=200&h=200', 'w=640&h=800', $story['photo']);
+  return $story;
+}, $stories);
 ?>
-<section class="py-20 lg:py-28 bg-paper-2 overflow-hidden relative" style="background:#F4F1EA">
+<section id="student-success-stories" class="py-20 lg:py-28 bg-white overflow-hidden relative">
   <div class="mx-auto max-w-7xl px-4 lg:px-6 relative">
     <!-- Header -->
     <div class="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
@@ -23,16 +32,16 @@ $stories = $storiesData['stories'];
       $carousel = count($stories) > 6;
       $displayStories = $carousel ? array_merge($stories, $stories) : $stories;
     ?>
-    <div class="relative" x-data="{ open: false, active: null, items: <?= json_encode($stories) ?> }">
+    <div class="relative" x-data="{ open: false, active: null, items: <?= h(json_encode($stories, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT)) ?> }">
       <div class="relative overflow-hidden">
         <div class="flex gap-4 <?= $carousel ? 'student-carousel-track hover:pause' : 'flex-wrap justify-center' ?>">
           <?php foreach ($displayStories as $i => $story):
             $realIndex = $i % count($stories);
           ?>
-            <div class="group bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 shrink-0 <?= $carousel ? 'w-40 sm:w-44 lg:w-52' : 'w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.8rem)]' ?>"
+            <div class="success-story-card group bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 shrink-0 <?= $carousel ? 'w-40 sm:w-44 lg:w-52' : 'w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.8rem)]' ?>"
                  @click="active = <?= $realIndex ?>; open = true">
               <div class="<?= $carousel ? 'aspect-[3/4]' : 'aspect-square' ?> overflow-hidden">
-                <img src="<?= h($story['photo']) ?>" alt="<?= h($story['name']) ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                <img src="<?= h($story['photo'] ?: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&h=800&q=80') ?>" alt="<?= h($story['name']) ?>" class="success-story-photo w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
               </div>
               <div class="p-3">
                 <div class="text-ink font-display font-bold text-sm leading-tight"><?= h($story['name']) ?></div>

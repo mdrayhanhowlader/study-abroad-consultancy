@@ -10,17 +10,17 @@
     <?php require __DIR__ . '/_logo.php'; ?>
 
     <!-- Desktop Nav -->
-    <nav class="hidden xl:flex items-center gap-1 flex-1 justify-center">
+    <nav class="desktop-nav hidden xl:flex items-center gap-1 flex-1 justify-center">
       <?php foreach ($site['nav'] as $item): ?>
         <?php if (!empty($item['children'])): ?>
           <?php $isMega = $item['key'] === 'study_abroad'; ?>
-          <div x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false" class="relative">
+          <div x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false" class="desktop-nav-dropdown relative">
             <button class="nav-link" :class="open && 'active'">
               <?= h(t('nav.' . $item['key'])) ?>
               <svg class="w-3.5 h-3.5 opacity-60 transition-transform" :class="open && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div x-show="open" x-transition.opacity.duration.150ms
-                 class="absolute top-full pt-3 z-50 left-1/2 -translate-x-1/2 <?= $isMega ? 'w-[32rem]' : 'w-60' ?>"
+                 class="desktop-dropdown-panel absolute top-full pt-3 z-50 left-1/2 -translate-x-1/2 <?= $isMega ? 'w-[32rem]' : 'w-60' ?>"
                  x-cloak>
               <div class="bg-white border border-hair shadow-2xl rounded-2xl overflow-hidden" style="border-color:#E5E1D9">
                 <?php if ($isMega): ?>
@@ -79,12 +79,13 @@
 
     <!-- Right Actions -->
     <div class="flex items-center gap-2 shrink-0">
-      <a href="<?= h(url('contact.php')) ?>" class="hidden md:inline-flex btn btn-primary text-sm px-4 py-2.5 shadow-lg shadow-brand/20">
+      <a href="<?= h(url('contact.php')) ?>" class="desktop-appointment hidden md:inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-full shadow-lg shadow-brand/25 transition transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand/30" style="background: linear-gradient(135deg, #006837 0%, #1A2B6D 100%);">
+        <?= icon('calendar', 'w-4 h-4') ?>
         <?= h(t('nav.book_appointment')) ?>
       </a>
       <button @click="open = !open; document.body.style.overflow = open ? 'hidden' : ''"
               class="xl:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-paper-2 text-ink hover:bg-brand hover:text-white transition-colors"
-              :aria-label="open ? 'Close menu' : 'Open menu'" aria-controls="mobileMenu">
+              :aria-label="open ? 'Close menu' : 'Open menu'" :aria-expanded="open.toString()" aria-controls="mobileMenu">
         <svg x-show="!open" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
         <svg x-show="open" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -187,8 +188,10 @@
 
     <!-- CTA Button -->
     <div class="px-5 pb-5">
-      <a href="<?= h(url('contact.php')) ?>" @click="open=false; document.body.style.overflow=''" class="flex items-center justify-center gap-2 w-full btn btn-primary py-3.5 text-sm font-semibold shadow-lg shadow-brand/20">
-        <?= h(t('nav.book_appointment')) ?> →
+      <a href="<?= h(url('contact.php')) ?>" @click="open=false; document.body.style.overflow=''" class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-white py-3.5 rounded-full shadow-lg shadow-brand/25 transition transform active:scale-95" style="background: linear-gradient(135deg, #006837 0%, #1A2B6D 100%);">
+        <?= icon('calendar', 'w-4 h-4') ?>
+        <?= h(t('nav.book_appointment')) ?>
+        <span>→</span>
       </a>
     </div>
 

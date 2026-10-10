@@ -58,7 +58,7 @@ $a = ''; /* admin is root-level, no prefix needed */
       <div class="bg-white rounded-xl p-4 border border-gray-200"><div class="text-xs text-gray-500">Active Products</div><div class="text-2xl font-bold mt-1"><?= (int) $counts['products'] ?></div></div>
       <div class="bg-white rounded-xl p-4 border border-gray-200"><div class="text-xs text-gray-500">Published Posts</div><div class="text-2xl font-bold mt-1"><?= (int) $counts['posts'] ?></div></div>
       <div class="bg-white rounded-xl p-4 border border-gray-200"><div class="text-xs text-gray-500">Active Users</div><div class="text-2xl font-bold mt-1"><?= (int) $counts['users'] ?></div></div>
-      <div class="bg-white rounded-xl p-4 border border-gray-200"><div class="text-xs text-gray-500">Quick Action</div><a href="content/posts.php" class="block mt-1 text-sm font-semibold text-brand hover:underline">+ New Blog / News →</a></div>
+      <div class="bg-white rounded-xl p-4 border border-gray-200"><div class="text-xs text-gray-500">Quick Actions</div><a href="homepage.php" class="block mt-1 text-sm font-semibold text-brand hover:underline">Edit homepage content →</a><a href="content/posts.php" class="block mt-1 text-sm font-semibold text-brand hover:underline">+ New Blog / News →</a></div>
     </section>
 
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">

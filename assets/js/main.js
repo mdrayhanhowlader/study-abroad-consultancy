@@ -70,7 +70,7 @@ function countdown(targetIso) {
   };
 }
 
-function assessmentForm(toEmail) {
+function assessmentForm() {
   return {
     sending: false,
     sent: false,

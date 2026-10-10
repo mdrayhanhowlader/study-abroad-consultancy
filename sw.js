@@ -1,7 +1,7 @@
 /* Manami Education — Service Worker (PWA)
    Caches static assets for offline viewing and faster repeat loads. */
 
-const CACHE_NAME = 'manami-v1';
+const CACHE_NAME = 'manami-v4';
 const STATIC_ASSETS = [
   './',
   './index.php',

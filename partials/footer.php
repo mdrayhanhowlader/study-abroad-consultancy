@@ -1,10 +1,10 @@
 <?php /** @var array $site */ ?>
-<footer class="bg-paper-2 text-ink hairline-top">
+<footer class="desktop-site-footer bg-paper-2 text-ink hairline-top">
   <div class="mx-auto max-w-7xl px-4 lg:px-6 pt-16 lg:pt-20 pb-10">
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-12 gap-10 lg:gap-12">
       <div class="col-span-2 lg:col-span-4">
         <?php require __DIR__ . '/_logo.php'; ?>
-        <p class="mt-5 text-sm text-ink-2 leading-relaxed"><?= h(t('footer.description')) ?></p>
+        <p class="mt-5 text-sm text-ink-2 leading-relaxed"><?= h(App\Homepage::text('footer.description', t('footer.description'))) ?></p>
         <p class="mt-4 text-sm">
           <span class="text-ink-3">E-mail:</span>
           <a href="mailto:<?= h($site['contact']['email']) ?>" class="hover:text-brand ml-1 break-all"><?= h($site['contact']['email']) ?></a>
@@ -101,4 +101,3 @@
     <span><?= h(t('mobile_nav.contact')) ?></span>
   </a>
 </nav>
-
