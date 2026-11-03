@@ -8,7 +8,7 @@
     <span class="font-medium"><?= h(\App\I18n::nativeName(current_lang())) ?></span>
     <svg class="w-3 h-3 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
   </button>
-  <div x-show="open" x-transition.opacity.duration.150ms class="lang-menu" x-cloak>
+  <div x-show="open" class="lang-menu" x-cloak>
     <?php foreach (\App\I18n::SUPPORTED as $code):
       $isActive = current_lang() === $code;
       $href = lang_url($code);

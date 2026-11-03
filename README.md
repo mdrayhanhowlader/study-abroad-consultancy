@@ -15,8 +15,8 @@ A production-ready study-abroad consultancy website for **Manami Education**, bu
 - **Blog / News** with article detail pages
 - **Contact & CTA forms** that save leads to the database
 - **FAQ accordion**, testimonials, stats counter, scroll reveal
-- **Multi-language** support (English, Japanese, Bengali, Hindi)
-- **Admin dashboard** for content, orders, leads, and settings
+- **Multi-language** support (English, Japanese, Bengali)
+- **Admin dashboard** for content, orders, leads, and settings, including uploaded site logo and icons
 - **Mobile bottom navigation** for quick access
 
 ## Tech stack
@@ -50,13 +50,43 @@ A production-ready study-abroad consultancy website for **Manami Education**, bu
 
 > Do **not** open `http://localhost/` — that is the XAMPP dashboard. Always use the full path above.
 
-## Default admin access
+## Admin access
 
-- URL: `http://localhost/study-abroad-consultancy/admin/login.php`
-- Email: `admin@manami.education`
-- Password: `admin123`
+Admin credentials are not displayed on the sign-in page. Change any initial password immediately after first login.
 
-Change the admin password immediately after the first login.
+## Google Business Profile reviews
+
+Manual testimonials remain available in **Admin → Content → Testimonials**. Google reviews are stored separately, shown with a Google review label, and synchronized from the verified Business Profile location.
+
+To enable automatic sync:
+
+1. Enable the Google Business Profile API for a Google Cloud project and authorize an OAuth refresh token with the `https://www.googleapis.com/auth/business.manage` scope. The Google account must have access to the verified business location.
+2. Set these variables in the server environment (do not commit OAuth secrets):
+   - `GBP_ACCOUNT_ID`
+   - `GBP_LOCATION_ID`
+   - `GOOGLE_OAUTH_CLIENT_ID`
+   - `GOOGLE_OAUTH_CLIENT_SECRET`
+   - `GOOGLE_OAUTH_REFRESH_TOKEN`
+3. Apply `config/migration.sql` if the database has not received the `google_reviews` table yet.
+4. Run an initial sync with `php scripts/sync-google-reviews.php`, then schedule that command hourly using the host's cron service. Each sync fetches every page of reviews, updates changed reviews, and hides reviews no longer returned by Google.
+
+The sync command exits with a non-zero status and reports an error if credentials or the Google API are unavailable. The map and manual testimonials do not depend on Google review API credentials.
+
+## Book sample PDFs and student stories
+
+- Add or edit a book from **Admin → Products** and upload a short excerpt in **Book sample PDF**. Only PDFs up to 25 MB are accepted; upload sample pages, not the complete book.
+- Preview files are stored outside the public web directory. The web server/PHP user must be able to write to the configured path. Set `PRIVATE_BOOK_PREVIEW_PATH` to an absolute writable directory outside the web root if the default parent directory is not writable. PHP's `upload_max_filesize` and `post_max_size` must also allow uploads of up to 25 MB.
+- A customer can download a book's preview from **Track Order** only after the order is marked **Paid** or **Completed**. They verify with the order code and phone used at checkout. The PDF itself is streamed through the access-checking endpoint and is not linked as a public upload.
+- Add real student photos and story details from **Admin → Content → Student Success**. Active stories appear in the homepage gallery after saving. Obtain permission before publishing students' photos and quotes.
+- The homepage student count is set to **300+**. The migration updates the saved stats and success-section count so older saved values do not continue to show 1,200+.
+
+## Homepage features, class schedules, and SSW
+
+- Manage the chairman profile and the Student Insights Facebook video at **Admin → Homepage Features**. The chairman section stays hidden until a name and portrait are configured and visibility is enabled. Use a public Facebook video permalink; arbitrary iframe URLs are rejected.
+- Publish class schedules at **Admin → Class Batches**. Add the batch ID, course, start date, duration, weekly class days, time, and location. The public calendar is available at `/batch-schedule.php`. Add government and campus holidays from the same dashboard; they are excluded from scheduled class days. Holiday dates are maintained manually, so check official announcements and update them for each batch.
+- Manage the SSW pipeline at **Admin → SSW Pipeline**. Staff can create applications directly or convert an existing SSW lead without re-entering the applicant's details. Application records support assignment, JLPT/skills test dates, employer and COA/visa references, departure date, notes, a document-status checklist, and an audit history of forward stage changes. The checklist tracks status only; it does not store passport or other document files.
+- On a new deployment, import `config/schema.sql`, then `config/migration.sql`, then `config/seed.sql`. For an existing deployment, back up the database and run `config/migration.sql` once; it creates the class schedule tables along with other additive application tables.
+- Browser caching and offline service-worker caching are disabled so content updates appear on refresh. Existing Manami service-worker registrations and their caches are removed automatically on the next visit.
 
 ## File structure
 

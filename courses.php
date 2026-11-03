@@ -1,4 +1,7 @@
 <?php
+header('Location: books.php', true, 301);
+exit;
+
 require __DIR__ . '/partials/_icons.php';
 require __DIR__ . '/app/bootstrap.php';
 $site = App\DataAdapter::site();
@@ -59,11 +62,6 @@ $jsonld = $courses ? [
   <?php require __DIR__ . '/partials/favicon.php'; ?>
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>

@@ -8,8 +8,8 @@ $variant = $variant ?? 'default';
 $homeHref = url('index.php');
 ?>
 <?php if (!empty($logoUrl)): ?>
-  <a href="<?= h($homeHref) ?>" class="flex items-center gap-2 shrink-0" aria-label="<?= $brandN ?> <?= $brandT ?> — Home">
-    <img src="<?= h($logoUrl) ?>" alt="<?= $brandN ?> <?= $brandT ?>" class="h-10 w-auto max-w-[180px] object-contain">
+  <a href="<?= h($homeHref) ?>" class="flex min-w-0 items-center shrink-0" aria-label="<?= $brandN ?> <?= $brandT ?> — Home">
+    <img src="<?= h($logoUrl) ?>" alt="<?= $brandN ?> <?= $brandT ?>" class="block h-11 w-auto max-w-[180px] object-contain sm:h-12 sm:max-w-[210px] xl:h-14 xl:max-w-[230px]">
   </a>
 <?php else: ?>
   <a href="<?= h($homeHref) ?>" class="flex items-center gap-2.5 shrink-0" aria-label="<?= $brandN ?> <?= $brandT ?> — Home">

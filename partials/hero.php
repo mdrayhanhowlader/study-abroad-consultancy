@@ -1,7 +1,7 @@
 <?php /** @var array $site */ $eventIso = $site['event']['date_iso']; $eventTitle = $site['event']['title']; ?>
 <section id="home" class="relative overflow-hidden" style="background: linear-gradient(180deg, #FAF8F4 0%, #F4F1EA 100%);">
   <div class="bg-orb" style="width:480px;height:480px;background:#006837;top:-120px;right:-120px;opacity:0.06"></div>
-  <div class="bg-orb" style="width:380px;height:380px;background:#1A2B6D;bottom:-120px;left:-80px;opacity:0.07"></div>
+  <div class="bg-orb" style="width:380px;height:380px;background:#087642;bottom:-120px;left:-80px;opacity:0.07"></div>
   <div class="bg-orb" style="width:300px;height:300px;background:#B8923B;top:40%;left:30%;opacity:0.05"></div>
 
   <div class="hero-inner mx-auto max-w-7xl px-4 lg:px-6 pt-14 pb-20 lg:pt-24 lg:pb-32 grid lg:grid-cols-12 gap-12 lg:gap-16 items-center relative">
@@ -22,10 +22,6 @@
         </a>
         <a href="#contact" class="btn btn-secondary">
           <?= h(App\Homepage::text('hero.cta_secondary', t('hero.cta_secondary'))) ?>
-        </a>
-        <a href="<?= h(url('quick-order.php')) ?>" class="btn btn-ghost">
-          <?= h(App\Homepage::text('hero.cta_quick_order', t('hero.cta_quick_order'))) ?>
-          <span class="opacity-80">→</span>
         </a>
       </div>
 

@@ -101,6 +101,11 @@ $jsonld = $product ? [
             <div class="eyebrow" data-num="·"><?= h($typeLabel) ?></div>
             <h1 class="mt-4 font-display text-4xl sm:text-5xl font-bold text-ink leading-[1.05] tracking-tight"><?= h($product['title']) ?></h1>
             <p class="mt-5 text-ink-2 leading-relaxed text-lg"><?= h($product['summary'] ?? '') ?></p>
+            <?php if (!empty($product['preview_pdf_path']) && in_array($product['type'], ['physical', 'digital'], true)): ?>
+              <p class="mt-3 rounded-xl border border-brand/15 bg-brand/5 px-4 py-3 text-sm text-ink-2">
+                <?= h(t('product.preview_after_payment')) ?>
+              </p>
+            <?php endif; ?>
 
             <?php if (!empty($product['description'])): ?>
               <div class="mt-6 prose prose-sm max-w-none text-ink-2"><?= $product['description'] ?></div>

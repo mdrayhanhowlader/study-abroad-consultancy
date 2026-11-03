@@ -5,23 +5,22 @@ namespace App;
 
 final class Mail
 {
-    public static function send(string $toEmail, string $toName, string $subject, string $bodyHtml): bool
+    public static function send(string $toEmail, string $toName, string $subject, string $bodyHtml, ?string $replyTo = null): bool
     {
         $cfg = require __DIR__ . '/../config/config.php';
         $fromEmail = $cfg['mail']['from_email'];
         $fromName  = $cfg['mail']['from_name'];
 
-        $boundary = md5(uniqid('', true));
         $headers  = [
             'MIME-Version: 1.0',
             'Content-Type: text/html; charset=UTF-8',
             'From: ' . self::encodeHeader($fromName) . " <{$fromEmail}>",
-            'Reply-To: ' . $fromEmail,
+            'Reply-To: ' . ($replyTo && filter_var($replyTo, FILTER_VALIDATE_EMAIL) ? $replyTo : $fromEmail),
             'X-Mailer: PHP/' . PHP_VERSION,
         ];
 
         $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-        $recipient = $toName ? $toName . ' <' . $toEmail . '>' : $toEmail;
+        $recipient = $toName ? self::encodeHeader($toName) . ' <' . $toEmail . '>' : $toEmail;
 
         $ok = @mail($recipient, $encodedSubject, $bodyHtml, implode("\r\n", $headers));
         if (!$ok) {

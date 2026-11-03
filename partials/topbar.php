@@ -1,4 +1,24 @@
 <?php /** @var array $site */ ?>
+<?php $appScopePath = rtrim(url(''), '/') . '/'; ?>
+<script>
+(() => {
+  const appScope = new URL(<?= json_encode($appScopePath, JSON_UNESCAPED_SLASHES) ?>, location.origin).href;
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) =>
+      Promise.all(registrations
+        .filter((registration) => registration.scope.startsWith(appScope))
+        .map((registration) => registration.unregister()))
+    );
+  }
+  if ('caches' in window) {
+    caches.keys().then((keys) =>
+      Promise.all(keys
+        .filter((key) => key.startsWith('manami-'))
+        .map((key) => caches.delete(key)))
+    );
+  }
+})();
+</script>
 <div class="bg-ink text-white text-xs relative z-30" style="background:#1E242B">
   <div class="mx-auto max-w-7xl px-4 lg:px-6 flex items-center justify-between h-9">
     <div class="hidden sm:flex items-center gap-5">

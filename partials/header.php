@@ -19,7 +19,7 @@
               <?= h(t('nav.' . $item['key'])) ?>
               <svg class="w-3.5 h-3.5 opacity-60 transition-transform" :class="open && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="open" x-transition.opacity.duration.150ms
+            <div x-show="open"
                  class="desktop-dropdown-panel absolute top-full pt-3 z-50 left-1/2 -translate-x-1/2 <?= $isMega ? 'w-[32rem]' : 'w-60' ?>"
                  x-cloak>
               <div class="bg-white border border-hair shadow-2xl rounded-2xl overflow-hidden" style="border-color:#E5E1D9">
@@ -79,7 +79,7 @@
 
     <!-- Right Actions -->
     <div class="flex items-center gap-2 shrink-0">
-      <a href="<?= h(url('contact.php')) ?>" class="desktop-appointment hidden md:inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-full shadow-lg shadow-brand/25 transition transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand/30" style="background: linear-gradient(135deg, #006837 0%, #1A2B6D 100%);">
+      <a href="<?= h(url('contact.php')) ?>" class="desktop-appointment hidden md:inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-full transition transform hover:-translate-y-0.5">
         <?= icon('calendar', 'w-4 h-4') ?>
         <?= h(t('nav.book_appointment')) ?>
       </a>
@@ -93,18 +93,13 @@
   </div>
 
   <!-- Mobile Drawer -->
-  <div id="mobileMenu" x-show="open" x-transition:enter="transition ease-out duration-300"
-       x-transition:enter-start="opacity-0 -translate-y-2"
-       x-transition:enter-end="opacity-100 translate-y-0"
-       x-transition:leave="transition ease-in duration-200"
-       x-transition:leave-start="opacity-100 translate-y-0"
-       x-transition:leave-end="opacity-0 -translate-y-2"
+  <div id="mobileMenu" x-show="open"
        class="xl:hidden fixed inset-x-0 top-16 bottom-0 z-30 bg-white overflow-y-auto"
        x-cloak @click.self="open=false; document.body.style.overflow=''">
 
     <!-- Quick Actions -->
     <div class="px-5 pt-5 pb-3">
-      <div class="grid grid-cols-4 gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <a href="tel:<?= h($site['contact']['phone_tel']) ?>" class="flex flex-col items-center gap-1 py-2 active:scale-95 transition-transform">
           <span class="w-11 h-11 rounded-xl bg-brand/10 grid place-items-center text-brand">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -116,18 +111,6 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h12a3 3 0 0 1 3 3v15a1 1 0 0 1-1 1H7a3 3 0 0 1-3-3V3zm12 2H6v13a1 1 0 0 0 1 1h11V5zM8 7h7v2H8V7zm0 4h7v2H8v-2z"/></svg>
           </span>
           <span class="text-[10px] font-medium text-ink-2">Books</span>
-        </a>
-        <a href="<?= h(url('courses.php')) ?>" class="flex flex-col items-center gap-1 py-2 active:scale-95 transition-transform">
-          <span class="w-11 h-11 rounded-xl bg-accent/10 grid place-items-center text-accent">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          </span>
-          <span class="text-[10px] font-medium text-ink-2">Courses</span>
-        </a>
-        <a href="<?= h(url('faq.php')) ?>" class="flex flex-col items-center gap-1 py-2 active:scale-95 transition-transform">
-          <span class="w-11 h-11 rounded-xl bg-gold/10 grid place-items-center" style="color:#B8923B">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
-          </span>
-          <span class="text-[10px] font-medium text-ink-2">FAQ</span>
         </a>
       </div>
     </div>
@@ -143,7 +126,7 @@
               <span><?= h(t('nav.' . $item['key'])) ?></span>
               <svg :class="o && 'rotate-180'" class="w-4 h-4 text-gray-400 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="o" x-transition class="pb-4 px-4 space-y-3" x-cloak>
+            <div x-show="o" class="pb-4 px-4 space-y-3" x-cloak>
               <?php
                 $mobileSections = [];
                 $cur = ['title' => null, 'href' => null, 'items' => []];
@@ -188,7 +171,7 @@
 
     <!-- CTA Button -->
     <div class="px-5 pb-5">
-      <a href="<?= h(url('contact.php')) ?>" @click="open=false; document.body.style.overflow=''" class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-white py-3.5 rounded-full shadow-lg shadow-brand/25 transition transform active:scale-95" style="background: linear-gradient(135deg, #006837 0%, #1A2B6D 100%);">
+      <a href="<?= h(url('contact.php')) ?>" @click="open=false; document.body.style.overflow=''" class="mobile-appointment flex items-center justify-center gap-2 w-full text-sm font-semibold text-white py-3.5 rounded-full transition transform active:scale-95">
         <?= icon('calendar', 'w-4 h-4') ?>
         <?= h(t('nav.book_appointment')) ?>
         <span>→</span>

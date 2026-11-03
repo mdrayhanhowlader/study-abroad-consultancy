@@ -60,11 +60,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
   <?php require __DIR__ . '/partials/favicon.php'; ?>
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>
@@ -116,7 +111,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
           </div>
 
           <div class="mt-10 aspect-[4/3] bg-paper-2 overflow-hidden" style="background:#F4F1EA">
-            <iframe src="https://maps.google.com/maps?q=<?= urlencode($site['contact']['address']) ?>&output=embed" width="100%" height="100%" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Office location"></iframe>
+            <iframe src="<?= h($site['contact']['map_embed_url']) ?>" width="100%" height="100%" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Office location"></iframe>
           </div>
         </div>
 

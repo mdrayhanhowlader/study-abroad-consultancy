@@ -3,9 +3,21 @@ require_once __DIR__ . '/../../app/bootstrap.php';
 App\Auth::requireRole('admin','editor','viewer');
 $adminPage = 'faqs';
 $pageTitle = 'FAQs';
+$canWrite = App\Auth::hasRole('admin','editor');
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     App\Csrf::verifyRequest();
+    if (!$canWrite) {
+        http_response_code(403);
+        exit('You do not have permission to change FAQs.');
+    }
+    if (($_POST['action'] ?? '') === 'toggle_faq_section') {
+        $enabled = isset($_POST['faq_section_enabled']) ? '1' : '0';
+        App\Settings::set('faq_section_enabled', $enabled);
+        App\Content::log((int) App\Auth::user()['id'], 'faq.section.toggle', 'faq_section', (int) $enabled);
+        App\Flash::set('success', $enabled === '1' ? 'FAQ section enabled.' : 'FAQ section disabled.');
+        redirect('/admin/content/faqs.php');
+    }
     $id = (int) ($_POST['id'] ?? 0);
     $data = [
         'question' => trim((string) ($_POST['question'] ?? '')),
@@ -25,13 +37,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 }
 if (isset($_GET['delete'])) {
     App\Csrf::verifyRequest();
+    if (!$canWrite) {
+        http_response_code(403);
+        exit('You do not have permission to change FAQs.');
+    }
     App\Database::delete('faqs', 'id=:id', ['id' => (int) $_GET['delete']]);
     App\Content::log((int) App\Auth::user()['id'], 'faq.delete', 'faq', (int) $_GET['delete']);
     redirect('/admin/content/faqs.php');
 }
 $edit = isset($_GET['edit']) ? App\Database::fetchOne('SELECT * FROM faqs WHERE id=?', [(int) $_GET['edit']]) : null;
 $rows = App\Database::fetchAll('SELECT * FROM faqs ORDER BY sort, id');
-$canWrite = App\Auth::hasRole('admin','editor');
+$faqSectionEnabled = App\DataAdapter::faqSectionEnabled();
 
 require __DIR__ . '/../_layout/head.php';
 require __DIR__ . '/../_layout/sidebar.php';
@@ -41,6 +57,29 @@ require __DIR__ . '/../_layout/sidebar.php';
   <main class="flex-1 p-4 lg:p-8 bg-gray-50 space-y-6">
     <?= App\Flash::render() ?>
 
+    <section class="bg-white rounded-xl border border-gray-200 p-5">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="font-semibold text-ink">FAQ section visibility</h2>
+          <p class="mt-1 text-sm text-gray-500">Control the FAQ section on the homepage and the public FAQ page.</p>
+        </div>
+        <?php if ($canWrite): ?>
+          <form method="post">
+            <?= App\Csrf::field() ?>
+            <input type="hidden" name="action" value="toggle_faq_section">
+            <label class="flex items-center gap-3">
+              <span class="text-sm font-medium <?= $faqSectionEnabled ? 'text-brand' : 'text-gray-500' ?>"><?= $faqSectionEnabled ? 'Enabled' : 'Disabled' ?></span>
+              <input type="checkbox" name="faq_section_enabled" value="1" <?= $faqSectionEnabled ? 'checked' : '' ?> aria-label="Show FAQ section on the public website">
+            </label>
+            <button class="mt-3 rounded-md bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark">Save visibility</button>
+          </form>
+        <?php else: ?>
+          <span class="text-sm font-semibold <?= $faqSectionEnabled ? 'text-brand' : 'text-gray-500' ?>"><?= $faqSectionEnabled ? 'Enabled' : 'Disabled' ?></span>
+        <?php endif; ?>
+      </div>
+    </section>
+
+    <?php if ($canWrite): ?>
     <section class="bg-white rounded-xl border border-gray-200 p-5">
       <h2 class="font-semibold text-ink mb-4"><?= $edit ? 'Edit FAQ' : 'Add FAQ' ?></h2>
       <form method="post" class="space-y-4">
@@ -67,6 +106,7 @@ require __DIR__ . '/../_layout/sidebar.php';
         </div>
       </form>
     </section>
+    <?php endif; ?>
 
     <section class="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-200"><h2 class="font-semibold text-ink">All FAQs</h2></div>

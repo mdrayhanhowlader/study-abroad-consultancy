@@ -73,6 +73,21 @@ final class Order
         return Database::fetchOne('SELECT * FROM orders WHERE code=?', [$code]);
     }
 
+    public static function findForTracking(string $code, string $phone): ?array
+    {
+        $order = self::findByCode($code);
+        if (!$order) return null;
+
+        try {
+            $storedPhone = Validation::phone((string) $order['phone']);
+            $submittedPhone = Validation::phone($phone);
+        } catch (\InvalidArgumentException $e) {
+            return null;
+        }
+
+        return hash_equals($storedPhone, $submittedPhone) ? $order : null;
+    }
+
     public static function items(int $orderId): array
     {
         return Database::fetchAll('SELECT * FROM order_items WHERE order_id=?', [$orderId]);
@@ -99,6 +114,10 @@ final class Order
         ];
         if (isset($labels[$newStatus]) && $o['email']) {
             $body = '<p>Hello ' . h($o['name']) . ',</p><p>Your order <strong>' . h($o['code']) . '</strong> is now: <strong>' . h($labels[$newStatus]) . '</strong>.</p>';
+            if (in_array($newStatus, ['paid', 'completed'], true)) {
+                $trackUrl = url('order-track.php?code=' . urlencode((string) $o['code']));
+                $body .= '<p>To download an available book sample PDF, <a href="' . h($trackUrl) . '">track your order</a> using your order code and phone number.</p>';
+            }
             Mail::send($o['email'], $o['name'], $labels[$newStatus] . ' — ' . $o['code'], Mail::wrap($labels[$newStatus], $body));
         }
     }

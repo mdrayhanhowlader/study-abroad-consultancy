@@ -2,8 +2,7 @@
 require_once __DIR__ . '/../app/bootstrap.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    header('Location: /books.php', true, 302);
-    exit;
+    redirect('books.php');
 }
 
 App\Csrf::verifyRequest();
@@ -48,6 +47,7 @@ try {
         $body  = '<p>Hello ' . h($name) . ',</p>';
         $body .= '<p>Thank you for your order. We received it with code <strong>' . h($code) . '</strong> for a total of <strong>' . format_bdt(App\Database::fetchValue('SELECT total FROM orders WHERE id=?', [$orderId])) . '</strong>.</p>';
         $body .= '<p>We will verify your bKash Transaction ID and call you within 24 hours.</p>';
+        $body .= '<p>After your payment is marked as paid, use your order code and phone number to download any available book sample PDF from <a href="' . h(url('order-track.php?code=' . urlencode($code))) . '">Track Order</a>.</p>';
         $body .= '<p>— The Manami Education team</p>';
         App\Mail::send($email, $name, 'Order ' . $code . ' received', App\Mail::wrap('Order received', $body));
     }

@@ -18,7 +18,7 @@ $japanSvgs = [
 $details = [
   'student-visa' => [
     'id' => 'student-visa',
-    'title' => 'Student Visa (Ryugaku)',
+    'title' => 'Student Visa Support',
     'subtitle' => 'Study at a Japanese language school or university with full visa support.',
     'duration' => '4–6 months',
     'eligibility' => 'High school diploma + JLPT N5 (or commitment to start in Japan)',
@@ -27,7 +27,7 @@ $details = [
   ],
   'ssw' => [
     'id' => 'ssw',
-    'title' => 'SSW (Specified Skilled Worker)',
+    'title' => 'Skilled Worker Programme (SSW)',
     'subtitle' => 'Work in Japan with a Specified Skilled Worker visa in high-demand industries.',
     'duration' => '3–5 months',
     'eligibility' => 'JLPT N4 or industry skills test, age 18+',
@@ -36,7 +36,7 @@ $details = [
   ],
   'titp' => [
     'id' => 'titp',
-    'title' => 'TITP (Technical Intern Training)',
+    'title' => 'Technical Intern Training (TITP)',
     'subtitle' => 'Train and work in Japan for 1–5 years through the TITP programme.',
     'duration' => '2–4 months',
     'eligibility' => 'Age 18+, basic Japanese, willing to train for 1–5 years',
@@ -46,10 +46,10 @@ $details = [
 ];
 
 $allSections = [
-  'student-visa' => ['title' => 'Student Visa (Ryugaku)', 'subtitle' => 'Study at a Japanese language school or university with full visa support.'],
-  'ssw'          => ['title' => 'SSW (Specified Skilled Worker)', 'subtitle' => 'Work in Japan with a Specified Skilled Worker visa in high-demand industries.'],
-  'titp'         => ['title' => 'TITP (Technical Intern Training)', 'subtitle' => 'Train and work in Japan for 1–5 years through the TITP programme.'],
-  'japanese'     => ['title' => 'Japanese Language (JLPT N5–N1)', 'subtitle' => 'From zero to JLPT N1 with native-trained teachers.'],
+  'student-visa' => ['title' => 'Student Visa Support', 'subtitle' => 'Study at a Japanese language school or university with full visa support.'],
+  'ssw'          => ['title' => 'Skilled Worker Programme (SSW)', 'subtitle' => 'Work in Japan with a Specified Skilled Worker visa in high-demand industries.'],
+  'titp'         => ['title' => 'Technical Intern Training (TITP)', 'subtitle' => 'Train and work in Japan for 1–5 years through the TITP programme.'],
+  'japanese'     => ['title' => 'Japanese Language Courses (JLPT N5–N1)', 'subtitle' => 'From zero to JLPT N1 with native-trained teachers.'],
   'ielts'        => ['title' => 'IELTS Preparation', 'subtitle' => 'A 6-week intensive covering all four modules with mock tests and feedback.'],
 ];
 
@@ -87,11 +87,6 @@ $activeSection = $allSections[$currentHash] ?? null;
   <?php require __DIR__ . '/partials/favicon.php'; ?>
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>
@@ -162,7 +157,7 @@ $activeSection = $allSections[$currentHash] ?? null;
         <article id="japanese" class="grid lg:grid-cols-2 gap-12 items-center scroll-mt-24">
           <div class="reveal">
             <div class="eyebrow" data-num="·">Language</div>
-            <h2 class="mt-4 font-display text-4xl sm:text-5xl font-bold text-ink leading-[1.05] tracking-tight">Japanese Language (JLPT N5–N1)</h2>
+            <h2 class="mt-4 font-display text-4xl sm:text-5xl font-bold text-ink leading-[1.05] tracking-tight">Japanese Language Courses (JLPT N5–N1)</h2>
             <p class="mt-4 text-ink-2 text-lg leading-relaxed">From zero to JLPT N1 with native-trained teachers. Levels N5 → N1, weekend and weekday batches, in-person (Dhanmondi) and online.</p>
             <div class="mt-8 grid grid-cols-5 gap-2">
               <?php foreach (['N5','N4','N3','N2','N1'] as $lvl): ?>
@@ -220,10 +215,10 @@ $activeSection = $allSections[$currentHash] ?? null;
           hash: null
         },
         sections: {
-          'student-visa': { title: 'Student Visa (Ryugaku)', subtitle: 'Study at a Japanese language school or university with full visa support.', hash: 'student-visa' },
-          'ssw': { title: 'SSW (Specified Skilled Worker)', subtitle: 'Work in Japan with a Specified Skilled Worker visa in high-demand industries.', hash: 'ssw' },
-          'titp': { title: 'TITP (Technical Intern Training)', subtitle: 'Train and work in Japan for 1–5 years through the TITP programme.', hash: 'titp' },
-          'japanese': { title: 'Japanese Language (JLPT N5–N1)', subtitle: 'From zero to JLPT N1 with native-trained teachers.', hash: 'japanese' },
+          'student-visa': { title: 'Student Visa Support', subtitle: 'Study at a Japanese language school or university with full visa support.', hash: 'student-visa' },
+          'ssw': { title: 'Skilled Worker Programme (SSW)', subtitle: 'Work in Japan with a Specified Skilled Worker visa in high-demand industries.', hash: 'ssw' },
+          'titp': { title: 'Technical Intern Training (TITP)', subtitle: 'Train and work in Japan for 1–5 years through the TITP programme.', hash: 'titp' },
+          'japanese': { title: 'Japanese Language Courses (JLPT N5–N1)', subtitle: 'From zero to JLPT N1 with native-trained teachers.', hash: 'japanese' },
           'ielts': { title: 'IELTS Preparation', subtitle: 'A 6-week intensive covering all four modules with mock tests and feedback.', hash: 'ielts' }
         },
         hero: { title: <?= json_encode(t('services.headline')) ?>, subtitle: <?= json_encode(t('services.body')) ?>, hash: null },

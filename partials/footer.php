@@ -1,83 +1,68 @@
 <?php /** @var array $site */ ?>
-<footer class="desktop-site-footer bg-paper-2 text-ink hairline-top">
-  <div class="mx-auto max-w-7xl px-4 lg:px-6 pt-16 lg:pt-20 pb-10">
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-12 gap-10 lg:gap-12">
-      <div class="col-span-2 lg:col-span-4">
-        <?php require __DIR__ . '/_logo.php'; ?>
-        <p class="mt-5 text-sm text-ink-2 leading-relaxed"><?= h(App\Homepage::text('footer.description', t('footer.description'))) ?></p>
-        <p class="mt-4 text-sm">
-          <span class="text-ink-3">E-mail:</span>
-          <a href="mailto:<?= h($site['contact']['email']) ?>" class="hover:text-brand ml-1 break-all"><?= h($site['contact']['email']) ?></a>
-        </p>
-        <div class="flex items-center gap-2 mt-5">
+<footer class="desktop-site-footer relative overflow-hidden">
+  <div class="footer-inner mx-auto max-w-7xl px-4 lg:px-6 pt-10 lg:pt-14 pb-8">
+    <div class="footer-contact-strip mb-12 flex flex-col gap-5 rounded-3xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:p-10">
+      <div class="max-w-2xl">
+        <span class="footer-contact-eyebrow"><?= h(t('footer.call_us')) ?></span>
+        <h2 class="footer-contact-title mt-2 font-display text-2xl font-bold sm:text-3xl"><?= h(t('cta_form.headline')) ?></h2>
+        <p class="footer-contact-copy mt-2 text-sm leading-relaxed"><?= h(t('success_section.body')) ?></p>
+      </div>
+      <div class="flex shrink-0 flex-wrap gap-3">
+        <a href="<?= h(url('index.php#contact')) ?>" class="footer-contact-action footer-contact-action--primary inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-bold"><?= h(t('hero.cta_secondary')) ?> <span class="ml-2" aria-hidden="true">→</span></a>
+        <a href="tel:<?= h($site['contact']['phone_tel']) ?>" class="footer-contact-action footer-contact-action--secondary inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold"><?= h($site['contact']['phone']) ?></a>
+      </div>
+    </div>
+
+    <div class="footer-main">
+      <div class="footer-brand">
+        <div class="inline-flex rounded-2xl bg-white px-4 py-2.5">
+          <?php require __DIR__ . '/_logo.php'; ?>
+        </div>
+        <p class="footer-description"><?= h(App\Homepage::text('footer.description', t('footer.description'))) ?></p>
+        <div class="footer-socials">
           <?php foreach ($site['social'] as $s): ?>
-            <a href="<?= h($s['href']) ?>" aria-label="<?= h($s['label']) ?>" class="w-9 h-9 grid place-items-center border border-hair hover:border-ink hover:text-brand transition">
+            <a href="<?= h($s['href']) ?>" aria-label="<?= h($s['label']) ?>" class="footer-social-link grid h-10 w-10 place-items-center rounded-full transition">
               <?= icon($s['icon'], 'w-4 h-4') ?>
             </a>
           <?php endforeach; ?>
         </div>
       </div>
 
-      <div class="lg:col-span-2">
-        <h4 class="text-[10px] font-semibold tracking-[0.25em] uppercase text-ink-3">Pages</h4>
-        <ul class="mt-5 space-y-2.5 text-sm text-ink-2">
-          <li><a href="<?= h(url('about.php')) ?>" class="hover:text-brand"><?= h(t('footer.about_manami')) ?></a></li>
-          <li><a href="<?= h(url('services.php')) ?>" class="hover:text-brand"><?= h(t('footer.study_in_japan')) ?></a></li>
-          <li><a href="<?= h(url('blog.php')) ?>" class="hover:text-brand"><?= h(t('nav.blog')) ?></a></li>
-          <li><a href="<?= h(url('events.php')) ?>" class="hover:text-brand"><?= h(t('nav.events')) ?></a></li>
-          <li><a href="<?= h(url('faq.php')) ?>" class="hover:text-brand"><?= h(t('nav.faq')) ?></a></li>
-          <li><a href="<?= h(url('contact.php')) ?>" class="hover:text-brand"><?= h(t('nav.contact')) ?></a></li>
-        </ul>
-      </div>
-
-      <div class="lg:col-span-2">
-        <h4 class="text-[10px] font-semibold tracking-[0.25em] uppercase text-ink-3"><?= h(t('footer.study_in_japan')) ?></h4>
-        <ul class="mt-5 space-y-2.5 text-sm text-ink-2">
-          <li><a href="<?= h(url('services.php#student-visa')) ?>" class="hover:text-brand"><?= h(t('footer.japan_student')) ?></a></li>
-          <li><a href="<?= h(url('services.php#ssw')) ?>" class="hover:text-brand"><?= h(t('footer.japan_ssw')) ?></a></li>
-          <li><a href="<?= h(url('services.php#titp')) ?>" class="hover:text-brand"><?= h(t('footer.japan_titp')) ?></a></li>
-          <li><a href="<?= h(url('services.php#japanese')) ?>" class="hover:text-brand"><?= h(t('footer.japan_jlpt')) ?></a></li>
-          <li><a href="<?= h(url('books.php')) ?>" class="hover:text-brand"><?= h(t('footer.books_courses')) ?></a></li>
-        </ul>
-      </div>
-
-      <div class="lg:col-span-2">
-        <h4 class="text-[10px] font-semibold tracking-[0.25em] uppercase text-ink-3"><?= h(t('footer.future_destinations')) ?></h4>
-        <ul class="mt-5 space-y-2.5 text-sm text-ink-2">
-          <li><a href="<?= h(url('country/japan')) ?>" class="hover:text-brand"><?= h(t('footer.dest_jp')) ?></a></li>
-          <li><a href="<?= h(url('country/australia')) ?>" class="hover:text-brand"><?= h(t('footer.dest_au')) ?></a></li>
-          <li><a href="<?= h(url('country/malaysia')) ?>" class="hover:text-brand"><?= h(t('footer.dest_my')) ?></a></li>
-          <li><a href="<?= h(url('country/south-korea')) ?>" class="hover:text-brand"><?= h(t('footer.dest_kr')) ?></a></li>
-        </ul>
-      </div>
-
-      <div class="col-span-2 md:col-span-1 lg:col-span-2">
-        <h4 class="text-[10px] font-semibold tracking-[0.25em] uppercase text-ink-3"><?= h(t('footer.office_address')) ?></h4>
-        <a href="<?= h($site['contact']['address_link']) ?>" target="_blank" rel="noopener" class="mt-5 block text-sm text-ink-2 hover:text-brand leading-relaxed">
-          <?= h($site['contact']['address']) ?>
+      <div class="footer-contact-list">
+        <a href="<?= h(url('batch-schedule.php')) ?>" class="footer-contact-item footer-schedule-link">
+          <span class="footer-schedule-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="16" rx="2"/>
+              <path d="M16 3v4M8 3v4M3 10h18"/>
+              <path d="m8 15 2.2 2L16 12"/>
+            </svg>
+          </span>
+          <span class="footer-schedule-copy">
+            <span class="footer-contact-label">Student resources</span>
+            <strong>Class schedules & holidays</strong>
+            <span>Check class days and course dates by batch.</span>
+            <span class="footer-schedule-action">View batch calendar <span aria-hidden="true">↗</span></span>
+          </span>
+          <span class="footer-schedule-arrow" aria-hidden="true">↗</span>
         </a>
-        <div class="mt-5 space-y-3 text-sm">
-          <div>
-            <div class="text-[10px] uppercase tracking-widest text-ink-3 mb-1"><?= h(t('footer.call_us')) ?></div>
-            <a href="tel:<?= h($site['contact']['phone_tel']) ?>" class="hover:text-brand"><?= h($site['contact']['phone']) ?></a>
-          </div>
-          <div>
-            <div class="text-[10px] uppercase tracking-widest text-ink-3 mb-1"><?= h(t('footer.email_us')) ?></div>
-            <a href="mailto:<?= h($site['contact']['email']) ?>" class="hover:text-brand break-all"><?= h($site['contact']['email']) ?></a>
-          </div>
-        </div>
+        <a href="<?= h($site['contact']['address_link']) ?>" target="_blank" rel="noopener" class="footer-contact-item">
+          <span class="footer-contact-label"><?= h(t('footer.office_address')) ?></span>
+          <span class="footer-contact-value"><?= h($site['contact']['address']) ?></span>
+        </a>
+        <a href="tel:<?= h($site['contact']['phone_tel']) ?>" class="footer-contact-item">
+          <span class="footer-contact-label"><?= h(t('footer.call_us')) ?></span>
+          <span class="footer-contact-value"><?= h($site['contact']['phone']) ?></span>
+        </a>
+        <a href="mailto:<?= h($site['contact']['email']) ?>" class="footer-contact-item">
+          <span class="footer-contact-label"><?= h(t('footer.email_us')) ?></span>
+          <span class="footer-contact-value"><?= h($site['contact']['email']) ?></span>
+        </a>
       </div>
     </div>
 
-    <div class="mt-14 pt-6 border-t hairline flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-ink-3">
-      <div class="flex items-center gap-4 flex-wrap justify-center md:justify-start">
-        <span>© <?= date('Y') ?> <?= h($site['brand']['full_name']) ?>. <?= h(t('common.all_rights_reserved')) ?></span>
-        <a href="<?= h(url('privacy.php')) ?>" class="hover:text-ink">Privacy</a>
-        <a href="<?= h(url('terms.php')) ?>" class="hover:text-ink">Terms</a>
-        <a href="<?= h(url('login.php')) ?>" class="hover:text-ink">Track order</a>
-        <a href="<?= h(url('admin/login.php')) ?>" class="hover:text-ink opacity-60">Admin</a>
-      </div>
-      <div class="font-display italic"><?= h($site['brand']['slogan']) ?></div>
+    <div class="footer-legal mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/15 pt-6 text-xs text-white/50 md:flex-row">
+      <span>© <?= date('Y') ?> <?= h($site['brand']['full_name']) ?>. <?= h(t('common.all_rights_reserved')) ?></span>
+      <div class="font-display italic text-white/75"><?= h($site['brand']['slogan']) ?></div>
     </div>
   </div>
 </footer>

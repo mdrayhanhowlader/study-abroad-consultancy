@@ -50,6 +50,7 @@ if ($depth > 0) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="<?= h($adminBase) ?>assets/css/style.css" rel="stylesheet">
+  <?php require __DIR__ . '/../../partials/favicon.php'; ?>
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 </head>
 <body class="font-sans bg-paper text-ink antialiased">

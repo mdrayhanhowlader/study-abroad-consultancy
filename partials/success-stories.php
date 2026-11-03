@@ -1,111 +1,217 @@
 <?php /** @var array $site */
 $storiesData = require __DIR__ . '/../data/success_stories.php';
 $section = $storiesData['section'];
-$stories = App\Homepage::stories($storiesData['stories']);
-$section['eyebrow'] = App\Homepage::text('success.eyebrow', $section['eyebrow']);
+$storiesTableExists = App\Database::fetchValue(
+  'SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?',
+  ['success_stories']
+);
+$storyRows = $storiesTableExists
+  ? App\Database::fetchAll(
+    'SELECT m.path AS photo_path
+     FROM success_stories s
+     LEFT JOIN media m ON m.id=s.photo_id
+     WHERE s.active=1 AND m.path IS NOT NULL AND m.path <> \'\'
+     ORDER BY s.sort, s.id'
+  )
+  : [];
+if (!$storiesTableExists) {
+  error_log('Student success stories are disabled until config/migration.sql creates the success_stories table.');
+}
+$stories = array_map(static fn(array $story): string => App\Upload::url($story['photo_path']), $storyRows);
+$carousel = count($stories) > 4;
 $section['headline'] = App\Homepage::text('success.headline', $section['headline']);
-$section['body'] = App\Homepage::text('success.body', $section['body']);
-$section['total_label'] = App\Homepage::text('success.total_label', $section['total_label']);
-$section['total_count'] = (int) App\Homepage::text('success.total_count', (string) $section['total_count']);
-$stories = array_map(static function (array $story): array {
-  $story['photo'] = str_replace('w=200&h=200', 'w=640&h=800', $story['photo']);
-  return $story;
-}, $stories);
 ?>
-<section id="student-success-stories" class="py-20 lg:py-28 bg-white overflow-hidden relative">
-  <div class="mx-auto max-w-7xl px-4 lg:px-6 relative">
-    <!-- Header -->
-    <div class="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
-      <span class="inline-block text-xs font-bold tracking-[0.25em] uppercase text-brand mb-3"><?= h($section['eyebrow']) ?></span>
-      <h2 class="font-display text-3xl lg:text-5xl font-bold text-ink leading-tight"><?= h($section['headline']) ?></h2>
-      <p class="mt-4 text-ink-2 leading-relaxed"><?= h($section['body']) ?></p>
-
-      <!-- Animated counter -->
-      <div class="mt-10 inline-flex flex-col items-center" x-data="{ count: 0, target: <?= (int)$section['total_count'] ?>, animate() { let interval = setInterval(() => { if (this.count < this.target) this.count += Math.ceil((this.target - this.count) / 20); else { this.count = this.target; clearInterval(interval); } }, 40); } }" x-init="let obs = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { animate(); obs.disconnect(); } }); }, { threshold: 0.5 }); obs.observe($el);">
-        <span class="text-5xl lg:text-7xl font-display font-extrabold text-brand tabular-nums" x-text="count.toLocaleString() + '+'"></span>
-        <span class="text-sm font-semibold tracking-wider uppercase text-ink-3 mt-2"><?= h($section['total_label']) ?></span>
+<?php if ($stories): ?>
+<section id="student-success-stories" class="student-success-section">
+  <div class="mx-auto max-w-7xl px-4 lg:px-6">
+    <div class="student-success-heading">
+      <div>
+        <span class="student-success-eyebrow"><span></span><?= h(t('testimonials.eyebrow')) ?></span>
+        <h2 class="font-display"><?= h($section['headline']) ?></h2>
       </div>
+      <span class="student-success-count"><?= count($stories) ?> <?= count($stories) === 1 ? 'moment' : 'moments' ?></span>
     </div>
 
-    <!-- Animated student photo wall -->
-    <?php
-      $carousel = count($stories) > 6;
-      $displayStories = $carousel ? array_merge($stories, $stories) : $stories;
-    ?>
-    <div class="relative" x-data="{ open: false, active: null, items: <?= h(json_encode($stories, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT)) ?> }">
-      <div class="relative overflow-hidden">
-        <div class="flex gap-4 <?= $carousel ? 'student-carousel-track hover:pause' : 'flex-wrap justify-center' ?>">
-          <?php foreach ($displayStories as $i => $story):
-            $realIndex = $i % count($stories);
-          ?>
-            <div class="success-story-card group bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 shrink-0 <?= $carousel ? 'w-40 sm:w-44 lg:w-52' : 'w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.8rem)]' ?>"
-                 @click="active = <?= $realIndex ?>; open = true">
-              <div class="<?= $carousel ? 'aspect-[3/4]' : 'aspect-square' ?> overflow-hidden">
-                <img src="<?= h($story['photo'] ?: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=640&h=800&q=80') ?>" alt="<?= h($story['name']) ?>" class="success-story-photo w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
-              </div>
-              <div class="p-3">
-                <div class="text-ink font-display font-bold text-sm leading-tight"><?= h($story['name']) ?></div>
-                <div class="text-brand text-xs font-semibold mt-0.5"><?= h($story['destination']) ?></div>
-                <div class="text-ink-3 text-[11px] mt-0.5 truncate"><?= h($story['program']) ?></div>
-              </div>
+    <?php if ($carousel): ?>
+      <div class="student-success-carousel">
+        <div class="student-success-track">
+          <?php foreach ([false, true] as $duplicate): ?>
+            <div class="student-success-set" <?= $duplicate ? 'aria-hidden="true"' : '' ?>>
+              <?php foreach ($stories as $photo): ?>
+                <div class="student-success-card success-story-card group">
+                  <img src="<?= h($photo) ?>" alt="Student success story" class="success-story-photo" loading="lazy" <?= $duplicate ? 'aria-hidden="true"' : '' ?>>
+                </div>
+              <?php endforeach; ?>
             </div>
           <?php endforeach; ?>
-          <?php if (!$carousel): ?>
-            <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.8rem)] aspect-square rounded-2xl bg-brand text-white grid place-items-center text-center p-4 shadow-lg">
-              <div>
-                <div class="text-2xl font-display font-bold"><?= count($stories) ?>+</div>
-                <div class="text-[10px] uppercase tracking-wider mt-1">Success stories</div>
-              </div>
-            </div>
-            <div class="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.8rem)] aspect-square rounded-2xl bg-navy text-white grid place-items-center text-center p-4 shadow-lg">
-              <div>
-                <div class="text-2xl font-display font-bold">99%</div>
-                <div class="text-[10px] uppercase tracking-wider mt-1">Visa success</div>
-              </div>
-            </div>
-          <?php endif; ?>
         </div>
       </div>
-
-      <!-- Modal -->
-      <div x-show="open" x-transition.opacity.duration.300ms class="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm p-4 flex items-center justify-center" x-cloak @click.self="open = false">
-        <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden">
-          <template x-if="active !== null">
-            <div class="grid md:grid-cols-5 relative">
-              <div class="md:col-span-2 aspect-square md:aspect-auto">
-                <img :src="items[active].photo" :alt="items[active].name" class="w-full h-full object-cover">
-              </div>
-              <div class="md:col-span-3 p-8 flex flex-col justify-center">
-                <button @click="open = false" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-ink/10 hover:bg-brand hover:text-white grid place-items-center text-ink transition">✕</button>
-                <span class="text-xs font-bold tracking-widest uppercase text-brand" x-text="items[active].destination"></span>
-                <h3 class="mt-2 font-display text-2xl font-bold text-ink" x-text="items[active].name"></h3>
-                <p class="text-sm text-ink-2 mt-1" x-text="items[active].program + ' — ' + items[active].year"></p>
-                <svg class="w-8 h-8 text-brand/30 mt-4 mb-2" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
-                <p class="text-ink leading-relaxed italic" x-text="items[active].quote"></p>
-                <div class="mt-6 flex gap-2">
-                  <button @click="active = (active - 1 + items.length) % items.length" class="px-4 py-2 border border-hair rounded-lg text-sm hover:bg-paper-2 transition" style="border-color:#E5E1D9">Previous</button>
-                  <button @click="active = (active + 1) % items.length" class="px-4 py-2 bg-brand text-white rounded-lg text-sm hover:bg-brand-dark transition">Next</button>
-                </div>
-              </div>
-            </div>
-          </template>
-        </div>
+    <?php else: ?>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+        <?php foreach ($stories as $photo): ?>
+          <div class="student-success-card success-story-card group">
+            <img src="<?= h($photo) ?>" alt="Student success story" class="success-story-photo" loading="lazy">
+          </div>
+        <?php endforeach; ?>
       </div>
-    </div>
+    <?php endif; ?>
   </div>
 </section>
+<?php endif; ?>
 <style>
-[x-cloak]{display:none!important}
-.student-carousel-track {
-  animation: studentScroll 40s linear infinite;
-  width: max-content;
+.student-success-section {
+  overflow: hidden;
+  padding: 3.5rem 0;
+  background:
+    radial-gradient(ellipse at 82% 10%, rgba(8,118,66,0.055), transparent 28rem),
+    #fff;
 }
-.student-carousel-track:hover,
-.student-carousel-track.hover\:pause:hover {
+.student-success-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+.student-success-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #77786f;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.student-success-eyebrow > span {
+  width: 1.25rem;
+  height: 1px;
+  background: #087642;
+}
+.student-success-heading h2 {
+  margin-top: 0.5rem;
+  color: #1e242b;
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+.student-success-count {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.7rem;
+  color: #315547;
+  border: 1px solid #dce8df;
+  border-radius: 999px;
+  background: #f3f7f3;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.student-success-carousel {
+  container-type: inline-size;
+  overflow: hidden;
+  padding: 0.15rem 0.1rem 0.65rem;
+}
+.student-success-track {
+  display: flex;
+  width: max-content;
+  animation: studentSuccessScroll 36s linear infinite;
+}
+.student-success-carousel:hover .student-success-track {
   animation-play-state: paused;
 }
-@keyframes studentScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.student-success-set {
+  display: flex;
+  gap: 1rem;
+  padding-right: 1rem;
+}
+.student-success-card {
+  flex: 0 0 calc((100cqi - 1rem) / 2);
+  overflow: hidden;
+  aspect-ratio: 0.84 / 1;
+  border: 1px solid rgba(215,210,199,0.8);
+  border-radius: 0.9rem;
+  background: #e8e6e0;
+  box-shadow: 0 12px 30px -23px rgba(30,36,43,0.42);
+}
+@media (min-width: 768px) {
+  .student-success-card {
+    flex-basis: calc((100cqi - 2.25rem) / 3);
+  }
+}
+@media (min-width: 1024px) {
+  .student-success-section {
+    padding: 4rem 0;
+  }
+  .student-success-set {
+    gap: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .student-success-card {
+    flex-basis: calc((100cqi - 3.75rem) / 4);
+  }
+}
+.student-success-photo,
+.success-story-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 650ms cubic-bezier(0.2,0.7,0.2,1);
+}
+.student-success-card:hover .success-story-photo {
+  transform: scale(1.045);
+}
+@media (max-width: 767px) {
+  .student-success-section {
+    padding: 2.5rem 0;
+  }
+  .student-success-heading {
+    margin-bottom: 1rem;
+  }
+  .student-success-heading h2 {
+    font-size: 1.55rem;
+  }
+  .student-success-count {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.55rem;
+  }
+}
+@keyframes studentSuccessScroll {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .student-success-track {
+    display: block;
+    width: 100%;
+    animation: none;
+  }
+  .student-success-set:first-child {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 0;
+  }
+  .student-success-set:last-child {
+    display: none;
+  }
+  .student-success-card {
+    width: auto;
+    flex-basis: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (min-width: 768px) {
+  .student-success-set:first-child {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) and (min-width: 1024px) {
+  .student-success-set:first-child {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
 }
 </style>

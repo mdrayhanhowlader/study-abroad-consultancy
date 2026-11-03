@@ -109,7 +109,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     } catch (Throwable $e) {
         App\Flash::set('error', $e->getMessage());
     }
-    redirect('settings.php?tab=' . urlencode($tab));
+    redirect('/admin/settings.php?tab=' . urlencode($tab));
 }
 
 $social = App\Settings::getJson('social_json', []);
@@ -151,8 +151,8 @@ require __DIR__ . '/_layout/sidebar.php';
       <div class="p-6">
         <?php if ($tab === 'brand' && App\Auth::hasRole('admin')):
             $brandImages = [
-              ['key' => 'logo_image_id', 'label' => 'Logo', 'hint' => 'Shown in header & footer. PNG/SVG with transparent background recommended.'],
-              ['key' => 'favicon_image_id', 'label' => 'Favicon', 'hint' => 'Browser tab icon, ideally 32×32 or 64×64 px.'],
+              ['key' => 'logo_image_id', 'label' => 'Logo', 'hint' => 'Shown across the site, including header and footer. Transparent PNG or SVG recommended; a wide image around 800×300 px works best.'],
+              ['key' => 'favicon_image_id', 'label' => 'Favicon', 'hint' => 'Browser tab icon. Use a square PNG, ideally 32×32 or 64×64 px.'],
               ['key' => 'apple_touch_icon_image_id', 'label' => 'Apple touch icon', 'hint' => 'iOS home-screen icon, ideally 192×192 or 512×512 px.'],
               ['key' => 'og_image_id', 'label' => 'OG / social image', 'hint' => 'Shown when sharing links. 1200×630 px recommended.'],
             ];
@@ -184,11 +184,11 @@ require __DIR__ . '/_layout/sidebar.php';
                 ?>
                   <label class="block">
                     <span class="text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= h($img['label']) ?></span>
-                    <input type="file" name="<?= h($fileKey) ?>" accept="image/*" class="mt-1.5 w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <input type="file" name="<?= h($fileKey) ?>" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" class="mt-1.5 w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                     <p class="text-[11px] text-gray-500 mt-1"><?= h($img['hint']) ?></p>
                     <?php if ($url): ?>
                       <div class="mt-2 flex items-center gap-2">
-                        <img src="<?= h($url) ?>" alt="" class="h-10 w-auto border border-gray-200 rounded">
+                        <img src="<?= h($url) ?>" alt="Current <?= h($img['label']) ?>" class="<?= $img['key'] === 'logo_image_id' ? 'h-12 max-w-[220px]' : 'h-12 w-12' ?> object-contain border border-gray-200 rounded bg-white p-1">
                         <a href="<?= h($url) ?>" target="_blank" class="text-xs text-brand hover:underline">View current</a>
                       </div>
                     <?php endif; ?>

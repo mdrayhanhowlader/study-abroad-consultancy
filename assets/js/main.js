@@ -38,6 +38,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.5 });
   counters.forEach(c => cio.observe(c));
+
+  const assessment = document.getElementById('assessmentForm');
+  if (assessment) {
+    assessment.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitAssessmentForm(assessment);
+    });
+    const whatsappLink = document.getElementById('assessmentWhatsappLink');
+    whatsappLink?.addEventListener('click', () => {
+      const data = new FormData(assessment);
+      const fields = [
+        ['Name', data.get('name')],
+        ['Phone', data.get('phone')],
+        ['Preferred destination', data.get('destination')],
+        ['Study level', data.get('study_level')],
+        ['Inquiry', data.get('message')]
+      ].filter(([, value]) => String(value || '').trim());
+      const greeting = assessment.dataset.whatsappGreeting || '';
+      const message = [greeting, ...fields.map(([label, value]) => `${label}: ${String(value).trim()}`)].filter(Boolean).join('\n\n');
+      whatsappLink.href = `https://wa.me/${assessment.dataset.whatsappNumber}?text=${encodeURIComponent(message)}`;
+    });
+  }
 });
 
 /* ---------- Alpine.js components ---------- */
@@ -70,36 +92,27 @@ function countdown(targetIso) {
   };
 }
 
-function assessmentForm() {
-  return {
-    sending: false,
-    sent: false,
-    error: '',
-    submit() {
-      this.sending = true;
-      this.error = '';
-      const form = document.getElementById('assessmentForm');
-      const data = new FormData(form);
-      data.append('source', 'cta_form');
+function submitAssessmentForm(form) {
+  const button = form.querySelector('button[type="submit"]');
+  const errorBox = document.getElementById('assessmentError');
+  const successBox = document.getElementById('assessmentSuccess');
+  const data = new FormData(form);
+  data.append('source', 'cta_form');
+  errorBox.hidden = true;
+  successBox.hidden = true;
+  button.disabled = true;
 
-      const csrfToken = form.querySelector('[name="_csrf"]');
-      if (csrfToken) data.append('_csrf', csrfToken.value);
-
-      fetch('api/lead.php', { method: 'POST', body: data })
-        .then(r => r.json())
-        .then(json => {
-          if (json.ok) {
-            this.sending = false;
-            this.sent = true;
-          } else {
-            this.sending = false;
-            this.error = json.message || 'Something went wrong.';
-          }
-        })
-        .catch(() => {
-          this.sending = false;
-          this.error = 'Network error. Please try again.';
-        });
-    }
-  };
+  fetch('api/lead.php', { method: 'POST', body: data })
+    .then(response => response.json())
+    .then(result => {
+      if (!result.ok) throw new Error(result.message || 'Something went wrong.');
+      successBox.hidden = false;
+    })
+    .catch(error => {
+      errorBox.textContent = error.message || 'Network error. Please try again.';
+      errorBox.hidden = false;
+    })
+    .finally(() => {
+      button.disabled = false;
+    });
 }

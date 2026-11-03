@@ -20,7 +20,7 @@
             </span>
             <span :class="open === <?= $i ?> && 'rotate-180 text-brand'" class="text-ink-3 transition-transform"><?= icon('chevron', 'w-5 h-5') ?></span>
           </button>
-          <div x-show="open === <?= $i ?>" x-collapse class="px-6 pb-6 pl-16 text-ink-2 leading-relaxed">
+          <div x-show="open === <?= $i ?>" class="px-6 pb-6 pl-16 text-ink-2 leading-relaxed">
             <?= h($f['a']) ?>
           </div>
         </div>

@@ -22,8 +22,11 @@ $nav = [
     ['key' => 'faqs',      'label' => 'FAQs',       'href' => $adminBase . 'content/faqs.php',  'roles' => ['admin','editor','viewer'], 'icon' => 'M4 4h16v12H5l-1 4zM8 8h8M8 12h5'],
     ['key' => 'posts',     'label' => 'Blog & News','href' => $adminBase . 'content/posts.php', 'roles' => ['admin','editor','viewer'], 'icon' => 'M4 4h16v16H4zM8 8h8M8 12h8M8 16h5'],
     ['key' => 'homepage',  'label' => 'Homepage Content','href' => $adminBase . 'homepage.php', 'roles' => ['admin','editor'], 'icon' => 'M3 10.5 12 3l9 7.5M5 9v12h14V9M9 21v-7h6v7'],
+    ['key' => 'homepage_features', 'label' => 'Homepage Features','href' => $adminBase . 'content/homepage-features.php', 'roles' => ['admin','editor','viewer'], 'icon' => 'M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4'],
+    ['key' => 'class_batches', 'label' => 'Class Batches','href' => $adminBase . 'class-batches.php', 'roles' => ['admin','editor','viewer'], 'icon' => 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2z'],
     ['key' => 'banners',   'label' => 'Banners',    'href' => $adminBase . 'content/banners.php', 'roles' => ['admin','editor','viewer'], 'icon' => 'M3 5h18v14H3zM3 9h18M7 13l3 4 4-6 5 8'],
     ['key' => 'testimonials','label' => 'Testimonials','href' => $adminBase . 'content/testimonials.php', 'roles' => ['admin','editor','viewer'], 'icon' => 'M7 7h4v4H8c0 2 .5 3 1.5 4L8 16c-2-1.5-3-3.5-3-6V7zm9 0h4v4h-3c0 2 .5 3 1.5 4L17 16c-2-1.5-3-3.5-3-6V7z'],
+    ['key' => 'success_stories','label' => 'Student Success','href' => $adminBase . 'content/success-stories.php', 'roles' => ['admin','editor','viewer'], 'icon' => 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 9a8 8 0 0 1 16 0M3 5h2m14 0h2'],
     ['key' => 'media',     'label' => 'Media',      'href' => $adminBase . 'content/media.php',  'roles' => ['admin','editor','viewer'], 'icon' => 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4'],
     ['key' => 'users',     'label' => 'Users',      'href' => $adminBase . 'users/index.php',   'roles' => ['admin'], 'icon' => 'M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zM8 13a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.7 0-8 1.3-8 4v3h11v-3a5 5 0 0 1 3.5-4.7A14 14 0 0 0 8 15zm10 0a14 14 0 0 0-3 .3A6 6 0 0 1 19 20v2h5v-3c0-2.7-5.3-4-6-4z'],
     ['key' => 'activity',  'label' => 'Activity',   'href' => $adminBase . 'activity.php',      'roles' => ['admin','editor'], 'icon' => 'M12 8v4l3 3M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z'],
@@ -35,7 +38,7 @@ $visible = array_filter($nav, fn($n) => in_array($role, $n['roles'], true));
        class="fixed lg:static lg:translate-x-0 z-40 w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-transform">
   <div class="px-5 h-16 flex items-center gap-2 border-b border-gray-200">
     <?php if (!empty($site['brand']['logo_url'])): ?>
-      <img src="<?= h($site['brand']['logo_url']) ?>" alt="<?= h($site['brand']['full_name']) ?>" class="h-8 w-auto max-w-[140px] object-contain">
+      <img src="<?= h($site['brand']['logo_url']) ?>" alt="<?= h($site['brand']['full_name']) ?>" class="h-10 w-auto max-w-[190px] object-contain">
     <?php else: ?>
       <span class="w-9 h-9 rounded-md bg-navy text-white grid place-items-center font-bold">M</span>
       <div class="leading-tight">

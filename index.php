@@ -50,7 +50,6 @@ $org_jsonld = [
   <link rel="alternate" hreflang="en-GB" href="<?= h($canonical) ?>?lang=en-GB">
   <link rel="alternate" hreflang="bn"    href="<?= h($canonical) ?>?lang=bn">
   <link rel="alternate" hreflang="ja"    href="<?= h($canonical) ?>?lang=ja">
-  <link rel="alternate" hreflang="hi"    href="<?= h($canonical) ?>?lang=hi">
   <link rel="alternate" hreflang="x-default" href="<?= h($canonical) ?>">
 
   <meta property="og:type" content="website">
@@ -109,11 +108,6 @@ $org_jsonld = [
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
   <script defer src="assets/js/main.js?v=<?= filemtime(__DIR__ . '/assets/js/main.js') ?>"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
 
@@ -121,25 +115,21 @@ $org_jsonld = [
   <?php require __DIR__ . '/partials/header.php'; ?>
 
   <main>
-    <?php require __DIR__ . '/partials/hero.php'; ?>
-    <?php require __DIR__ . '/partials/marquee.php'; ?>
+    <?php require __DIR__ . '/partials/hero-background-preview.php'; ?>
+    <?php require __DIR__ . '/partials/chairman.php'; ?>
     <?php require __DIR__ . '/partials/about.php'; ?>
     <?php require __DIR__ . '/partials/why-japan.php'; ?>
-    <?php require __DIR__ . '/partials/services.php'; ?>
-    <?php require __DIR__ . '/partials/countries.php'; ?>
     <?php require __DIR__ . '/partials/stats.php'; ?>
     <?php require __DIR__ . '/partials/success-stories.php'; ?>
     <?php require __DIR__ . '/partials/testimonials.php'; ?>
     <?php require __DIR__ . '/partials/cta-form.php'; ?>
     <?php require __DIR__ . '/partials/blog.php'; ?>
-    <?php require __DIR__ . '/partials/faq.php'; ?>
+    <?php require __DIR__ . '/partials/services.php'; ?>
+    <?php require __DIR__ . '/partials/countries.php'; ?>
+    <?php require __DIR__ . '/partials/location.php'; ?>
     <?php require __DIR__ . '/partials/pre-footer.php'; ?>
   </main>
 
   <?php require __DIR__ . '/partials/footer.php'; ?>
-
-  <a href="<?= h(url('contact.php')) ?>" class="hidden md:inline-flex fixed bottom-5 right-5 bg-ink text-white font-semibold text-sm px-5 py-3 rounded-sm shadow-2xl z-50">
-    <?= h(t('floating_cta.get_appointment')) ?>
-  </a>
 </body>
 </html>

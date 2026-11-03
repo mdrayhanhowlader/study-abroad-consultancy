@@ -18,6 +18,47 @@ final class DataAdapter
         $appleUrl   = Content::mediaUrl((int) Settings::get('apple_touch_icon_image_id')) ?: null;
         $ogImageId  = (int) Settings::get('og_image_id');
         $ogImage    = $ogImageId ? (Content::mediaUrl($ogImageId) ?: Settings::get('og_image', $fallback['brand']['og_image'] ?? '')) : Settings::get('og_image', $fallback['brand']['og_image'] ?? '');
+        $address = Settings::get('contact_address', $fallback['contact']['address'] ?? 'House 12, Road 7, Dhanmondi, Dhaka 1205, Bangladesh');
+        $address = preg_replace('/,\s*Bangladesh,\s*(\d{4})$/i', ', $1, Bangladesh', $address) ?? $address;
+        $address = preg_replace('/\s+-\s+(\d{4})\s+Bangladesh$/i', ', $1, Bangladesh', $address) ?? $address;
+        $nav = Settings::getJson('nav_json', $fallback['nav'] ?? []);
+        if (!is_array($nav)) {
+            $nav = $fallback['nav'] ?? [];
+        }
+        $faqSectionEnabled = self::faqSectionEnabled();
+        $nav = array_values(array_filter(
+            $nav,
+            static fn($item): bool => is_array($item)
+                && !in_array($item['key'] ?? '', ['quick_order', 'courses'], true)
+                && ($faqSectionEnabled || ($item['key'] ?? '') !== 'faq')
+        ));
+        $destinationItems = [
+            ['key' => 'japan', 'href' => 'country/japan'],
+            ['key' => 'malaysia', 'href' => 'country/malaysia'],
+            ['key' => 'australia', 'href' => 'country/australia'],
+            ['key' => 'south_korea', 'href' => 'country/south-korea'],
+        ];
+        $hasDestinations = false;
+        foreach ($nav as &$item) {
+            if (($item['key'] ?? '') === 'books_courses') {
+                $item['href'] = 'books.php';
+            } elseif (($item['key'] ?? '') === 'study_abroad') {
+                $item['children'] = array_values(array_filter(
+                    $item['children'] ?? [],
+                    static fn($child): bool => is_array($child)
+                        && ($child['key'] ?? '') !== 'destinations'
+                        && !in_array($child['key'] ?? '', ['japan', 'malaysia', 'australia', 'south_korea'], true)
+                ));
+            } elseif (($item['key'] ?? '') === 'destinations') {
+                $item['children'] = $destinationItems;
+                unset($item['href']);
+                $hasDestinations = true;
+            }
+        }
+        unset($item);
+        if (!$hasDestinations) {
+            $nav[] = ['key' => 'destinations', 'children' => $destinationItems];
+        }
         return [
             'brand' => [
                 'name'          => Settings::get('brand_name', $fallback['brand']['name'] ?? 'Manami'),
@@ -35,18 +76,16 @@ final class DataAdapter
                 'phone'        => Settings::get('contact_phone', $fallback['contact']['phone'] ?? '+880 1700 000000'),
                 'phone_tel'    => Settings::get('contact_phone_tel', $fallback['contact']['phone_tel'] ?? '+8801700000000'),
                 'email'        => Settings::get('contact_email', $fallback['contact']['email'] ?? 'office@manami.education'),
-                'address'      => Settings::get('contact_address', $fallback['contact']['address'] ?? 'House 12, Road 7, Dhanmondi, Dhaka 1205, Bangladesh'),
+                'address'      => $address,
                 'address_link' => Settings::get('contact_address_link', $fallback['contact']['address_link'] ?? 'https://maps.google.com/?q=House+12+Road+7+Dhanmondi+Dhaka'),
+                'map_embed_url' => Settings::get('contact_map_embed_url', $fallback['contact']['map_embed_url'] ?? ''),
             ],
             'event' => [
                 'title'    => Settings::get('event_title', $fallback['event']['title'] ?? 'Manami Study Japan Expo 2026'),
                 'date_iso' => Settings::get('event_date', date('Y-m-d', strtotime('+21 days'))) ?: date('Y-m-d', strtotime('+21 days')),
             ],
             'social'  => $s,
-            'nav'     => Settings::getJson('nav_json', $fallback['nav'] ?? [
-                ['key' => 'home', 'href' => 'index.php'],
-                ['key' => 'contact', 'href' => 'contact.php'],
-            ]),
+            'nav'     => $nav,
         ];
     }
 
@@ -95,11 +134,18 @@ final class DataAdapter
         $rows = Content::services();
         $out = [];
         foreach ($rows as $r) {
+            $title = match ((string) $r['title']) {
+                'Japan Student Visa (Ryugaku)', 'Student Visa (Ryugaku)' => 'Student Visa Support',
+                'SSW — Specified Skilled Worker', 'SSW (Specified Skilled Worker)' => 'Skilled Worker Programme (SSW)',
+                'TITP — Technical Intern Training Program', 'TITP (Technical Intern Training)' => 'Technical Intern Training (TITP)',
+                'Japanese Language (JLPT N5–N1)' => 'Japanese Language Courses (JLPT N5–N1)',
+                default => $r['title'],
+            };
             $out[] = [
                 'id'      => (int) $r['id'],
                 'slug'    => $r['slug'],
                 'icon'    => $r['icon'] ?: 'globe',
-                'title'   => $r['title'],
+                'title'   => $title,
                 'desc'    => $r['summary'] ?? '',
                 'body'    => $r['body'] ?? '',
                 'cta_text'=> $r['cta_text'] ?? '',
@@ -119,6 +165,18 @@ final class DataAdapter
                 'role'    => $r['country'] ? 'Study in ' . $r['country'] : 'Student',
                 'quote'   => $r['body'],
                 'rating'  => (int) $r['rating'],
+                'source'  => 'student',
+            ];
+        }
+        foreach (Content::googleReviews() as $r) {
+            $out[] = [
+                'name'   => $r['reviewer_name'],
+                'role'   => t('testimonials.google_review'),
+                'quote'  => $r['comment'] !== null && $r['comment'] !== ''
+                    ? $r['comment']
+                    : t('testimonials.rating_only'),
+                'rating' => (int) $r['rating'],
+                'source' => 'google',
             ];
         }
         return $out;
@@ -137,6 +195,11 @@ final class DataAdapter
         return $out;
     }
 
+    public static function faqSectionEnabled(): bool
+    {
+        return Settings::get('faq_section_enabled', '1') === '1';
+    }
+
     public static function posts(int $limit = 3): array
     {
         $rows = Content::recentPosts($limit);
@@ -146,8 +209,11 @@ final class DataAdapter
             $out[] = [
                 'day'   => date('d', $ts),
                 'mo'    => date('M', $ts),
+                'date'  => date('F j, Y', $ts),
                 'tag'   => ucfirst($r['type']),
                 'title' => $r['title'],
+                'excerpt' => trim((string) ($r['excerpt'] ?? '')),
+                'cover' => !empty($r['cover_id']) ? Content::mediaUrl((int) $r['cover_id']) : null,
                 'href'  => 'blog/' . $r['slug'],
                 'slug'  => $r['slug'],
                 'type'  => $r['type'],

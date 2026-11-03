@@ -15,12 +15,14 @@ try {
     $name    = App\Validation::str((string) ($_POST['name'] ?? ''), 2, 120);
     $phone   = App\Validation::phone((string) ($_POST['phone'] ?? ''));
     $email   = trim((string) ($_POST['email'] ?? ''));
-    if ($email !== '') $email = App\Validation::email($email);
+    $source = trim((string) ($_POST['source'] ?? 'contact_form'));
+    if ($source === 'cta_form' || $email !== '') {
+        $email = App\Validation::email($email);
+    }
     $destination = trim((string) ($_POST['destination'] ?? '')) ?: null;
     $studyLevel  = trim((string) ($_POST['study_level'] ?? '')) ?: null;
     $serviceInterest = trim((string) ($_POST['service_interest'] ?? '')) ?: null;
     $message = trim((string) ($_POST['message'] ?? '')) ?: null;
-    $source = trim((string) ($_POST['source'] ?? 'contact_form'));
 
     $validSources = ['contact_form', 'cta_form', 'book_page', 'course_page', 'facebook_ad', 'organic'];
     if (!in_array($source, $validSources, true)) $source = 'contact_form';
@@ -57,12 +59,28 @@ try {
     $mailBody .= '<br><br><strong>Source:</strong> ' . h($source);
     $mailBody .= '</p>';
 
-    App\Mail::send(
+    $adminMailSent = App\Mail::send(
         $site['contact']['email'],
         $site['brand']['full_name'],
         'New lead: ' . $name . ' (' . $source . ')',
-        App\Mail::wrap('New Lead', $mailBody)
+        App\Mail::wrap('New Lead', $mailBody),
+        $email ?: null
     );
+    $customerMailSent = true;
+    if ($source === 'cta_form') {
+        $customerBody = '<p>' . sprintf(t('cta_form.thank_you_body'), h($name)) . '</p>';
+        $customerMailSent = App\Mail::send(
+            $email,
+            $name,
+            t('cta_form.thank_you_subject'),
+            App\Mail::wrap(sprintf(t('cta_form.thank_you_title'), h($name)), $customerBody)
+        );
+    }
+    if (!$adminMailSent || !$customerMailSent) {
+        http_response_code(503);
+        echo json_encode(['ok' => false, 'message' => t('cta_form.email_failed')]);
+        exit;
+    }
 
     App\Pixel::logEvent('Lead', ['source' => $source, 'lead_id' => $leadId]);
 

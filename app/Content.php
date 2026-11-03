@@ -5,6 +5,8 @@ namespace App;
 
 final class Content
 {
+    private static bool $googleReviewsSchemaWarningLogged = false;
+
     public static function services(bool $activeOnly = true): array
     {
         $sql = 'SELECT * FROM services' . ($activeOnly ? ' WHERE active=1' : '') . ' ORDER BY sort ASC, id ASC';
@@ -33,6 +35,25 @@ final class Content
         return Database::fetchAll($sql);
     }
 
+    public static function googleReviews(): array
+    {
+        $tableExists = Database::fetchValue(
+            'SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?',
+            ['google_reviews']
+        );
+        if (!$tableExists) {
+            if (!self::$googleReviewsSchemaWarningLogged) {
+                error_log('Google reviews are disabled until config/migration.sql creates the google_reviews table.');
+                self::$googleReviewsSchemaWarningLogged = true;
+            }
+            return [];
+        }
+
+        return Database::fetchAll(
+            'SELECT reviewer_name, rating, comment FROM google_reviews WHERE active=1 ORDER BY review_created_at DESC, review_updated_at DESC'
+        );
+    }
+
     public static function faqs(bool $activeOnly = true): array
     {
         $sql = 'SELECT * FROM faqs' . ($activeOnly ? ' WHERE active=1' : '') . ' ORDER BY sort ASC, id ASC';
@@ -42,7 +63,7 @@ final class Content
     public static function stats(): array
     {
         return Settings::getJson('stats_json', [
-            ['label' => 'Students Placed', 'value' => 1200],
+            ['label' => 'Students Placed', 'value' => 300],
             ['label' => 'Partner Institutions', 'value' => 85],
             ['label' => 'Courses Available', 'value' => 240],
             ['label' => 'Visa Success Rate', 'value' => '99%'],

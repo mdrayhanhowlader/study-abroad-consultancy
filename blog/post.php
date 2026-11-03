@@ -38,6 +38,7 @@ $related    = $post ? App\Database::fetchAll(
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= h(url('assets/css/style.css')) ?>">
   <?php require __DIR__ . '/../partials/favicon.php'; ?>
+  <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/../partials/topbar.php'; ?>

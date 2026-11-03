@@ -8,6 +8,7 @@ $pageTitle = $id ? 'Edit product' : 'New product';
 $adminPage = 'products';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    try {
     App\Csrf::verifyRequest();
     $title = trim((string) ($_POST['title'] ?? ''));
     $slug  = trim((string) ($_POST['slug'] ?? '')) ?: App\Validation::slug($title);
@@ -23,6 +24,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             'sort'        => (int) ($_POST['sort'] ?? 0),
             'active'      => isset($_POST['active']) ? 1 : 0,
         ];
+        if ($data['type'] === 'course' && !empty($_FILES['preview_pdf']['name'])) {
+            throw new RuntimeException('Book PDF previews can only be added to book products.');
+        }
+        $data['preview_pdf_path'] = !empty($_POST['remove_preview_pdf']) ? null : ($product['preview_pdf_path'] ?? null);
+        if (!empty($_FILES['preview_pdf']['name'])) {
+            $data['preview_pdf_path'] = App\PrivateBookPreview::upload($_FILES['preview_pdf']);
+        }
         if (!empty($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
             $cfg = require __DIR__ . '/../../config/config.php';
             $r = App\Upload::handle($_FILES['cover'], 'products', App\Upload::ALLOWED_IMAGE, $cfg['uploads']['max_image_bytes'], 1200);
@@ -39,6 +47,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         redirect('/admin/products/edit.php?id=' . $id);
     } else {
         App\Flash::set('error', 'Slug already used.');
+    }
+    } catch (Throwable $e) {
+        App\Flash::set('error', $e->getMessage());
     }
 }
 
@@ -82,6 +93,18 @@ require __DIR__ . '/../_layout/sidebar.php';
         <label class="block"><span class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Cover image</span>
           <input type="file" name="cover" accept="image/*" class="mt-1.5 w-full border border-gray-300 rounded-md px-4 py-2 text-sm">
         </label>
+        <div class="block">
+          <label class="block"><span class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Book sample PDF (max 25 MB)</span>
+            <input type="file" name="preview_pdf" accept="application/pdf,.pdf" class="mt-1.5 w-full border border-gray-300 rounded-md px-4 py-2 text-sm">
+          </label>
+          <span class="mt-1 block text-xs text-gray-500">Upload only a short excerpt, not the complete book.</span>
+          <?php if (!empty($product['preview_pdf_path'])): ?>
+            <label class="mt-2 flex items-center gap-2 text-xs text-ink-2">
+              <input type="checkbox" name="remove_preview_pdf" value="1">
+              Remove the current sample PDF
+            </label>
+          <?php endif; ?>
+        </div>
         <label class="block"><span class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Sort</span>
           <input name="sort" type="number" value="<?= h((string)($product['sort'] ?? 0)) ?>" class="mt-1.5 w-full border border-gray-300 rounded-md px-4 py-2.5 text-sm">
         </label>

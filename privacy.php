@@ -31,11 +31,6 @@ $canonical  = $site['brand']['domain'] . '/privacy.php';
   <meta name="apple-mobile-web-app-title" content="Manami Education">
   <?php require __DIR__ . '/partials/favicon.php'; ?>
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>

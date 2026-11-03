@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+header('Location: books.php', true, 301);
+exit;
+
 require __DIR__ . '/partials/_icons.php';
 require __DIR__ . '/app/bootstrap.php';
 
@@ -141,11 +144,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
   <?php require __DIR__ . '/partials/favicon.php'; ?>
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>
@@ -246,7 +244,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                   </label>
                 </div>
 
-                <div x-show="paymentMethod === 'bkash'" x-transition class="mt-4">
+                <div x-show="paymentMethod === 'bkash'" class="mt-4">
                   <label class="block">
                     <span class="text-[10px] font-semibold text-ink-2 uppercase tracking-widest"><?= h(t('quick_order.bkash_txn')) ?></span>
                     <input name="bkash_txn" placeholder="<?= h(t('quick_order.bkash_txn_ph')) ?>" value="<?= h($_POST['bkash_txn'] ?? '') ?>" class="input mt-2 font-mono">

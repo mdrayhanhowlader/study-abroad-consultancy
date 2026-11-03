@@ -10,14 +10,19 @@ final class Auth
         if (session_status() === PHP_SESSION_ACTIVE) return;
         $cfg = require __DIR__ . '/../config/config.php';
         $s = $cfg['session'];
+        $https = (!empty($_SERVER['HTTPS']) && !in_array(strtolower((string) $_SERVER['HTTPS']), ['off', '0'], true))
+            || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
         session_name($s['name']);
         session_set_cookie_params([
             'lifetime' => $s['lifetime'],
             'path'     => $s['cookie_path'],
             'httponly' => true,
             'samesite' => 'Lax',
-            'secure'   => ($cfg['app']['env'] === 'production'),
+            'secure'   => ($cfg['app']['env'] === 'production' && $https),
         ]);
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.use_trans_sid', '0');
         ini_set('session.gc_maxlifetime', (string) $s['lifetime']);
         session_start();
     }
@@ -81,7 +86,7 @@ final class Auth
     public static function require(string $loginPath = '/admin/login.php'): void
     {
         if (!self::check()) {
-            header('Location: ' . $loginPath, true, 302);
+            header('Location: ' . url($loginPath), true, 302);
             exit;
         }
     }
@@ -114,5 +119,8 @@ final class Auth
             'password_hash'  => $hash,
             'must_change_pw' => 0,
         ], 'id=:id', ['id' => $userId]);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
     }
 }

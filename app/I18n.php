@@ -5,7 +5,7 @@ namespace App;
 
 final class I18n
 {
-    public const SUPPORTED = ['en-GB', 'bn', 'ja', 'hi'];
+    public const SUPPORTED = ['en-GB', 'bn', 'ja'];
     public const DEFAULT    = 'en-GB';
     public const COOKIE     = 'manami_lang';
     public const COOKIE_TTL = 60 * 60 * 24 * 365;
@@ -91,7 +91,6 @@ final class I18n
             'en-GB' => 'English (UK)',
             'bn'    => 'বাংলা',
             'ja'    => '日本語',
-            'hi'    => 'हिन्दी',
         ];
         return $names[$code] ?? $code;
     }
@@ -102,7 +101,6 @@ final class I18n
             'en-GB' => '🇬🇧',
             'bn'    => '🇧🇩',
             'ja'    => '🇯🇵',
-            'hi'    => '🇮🇳',
         ];
         return $flags[$code] ?? '🌐';
     }
@@ -130,7 +128,7 @@ final class I18n
                 $q = (float) $m[1];
             }
             $primary = strtolower(strtok($tag, '-'));
-            $map = ['en' => 'en-GB', 'bn' => 'bn', 'ja' => 'ja', 'hi' => 'hi'];
+            $map = ['en' => 'en-GB', 'bn' => 'bn', 'ja' => 'ja'];
             if (isset($map[$primary])) {
                 $candidates[$map[$primary]] = ($candidates[$map[$primary]] ?? 0) + $q;
             }

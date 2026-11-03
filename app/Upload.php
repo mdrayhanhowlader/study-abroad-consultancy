@@ -53,7 +53,12 @@ final class Upload
     {
         if (!$relPath) return '';
         $cfg = require __DIR__ . '/../config/config.php';
-        return rtrim($cfg['uploads']['base_url'], '/') . '/' . ltrim($relPath, '/');
+        $baseUrl = rtrim($cfg['uploads']['base_url'], '/');
+        $path = trim($baseUrl, '/') . '/' . ltrim($relPath, '/');
+        if (preg_match('#^https?://#i', $baseUrl)) {
+            return $baseUrl . '/' . ltrim($relPath, '/');
+        }
+        return \url($path);
     }
 
     private static function detectMime(string $tmp): string

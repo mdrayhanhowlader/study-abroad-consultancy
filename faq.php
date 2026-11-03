@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/partials/_icons.php';
 require __DIR__ . '/app/bootstrap.php';
+if (!App\DataAdapter::faqSectionEnabled()) {
+    redirect('index.php');
+}
 $site = App\DataAdapter::site();
 $faqs = App\DataAdapter::faqs();
 $page_title = t('nav.faq') . ' — ' . $site['brand']['full_name'];
@@ -32,11 +35,6 @@ $canonical  = $site['brand']['domain'] . '/faq.php';
   <?php require __DIR__ . '/partials/favicon.php'; ?>
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>
@@ -69,7 +67,7 @@ $canonical  = $site['brand']['domain'] . '/faq.php';
                 </span>
                 <span :class="open === <?= $i ?> && 'rotate-180 text-brand'" class="text-ink-3 transition-transform shrink-0"><?= icon('chevron', 'w-5 h-5') ?></span>
               </button>
-              <div x-show="open === <?= $i ?>" x-collapse class="px-6 pb-6 pl-16 text-ink-2 leading-relaxed">
+              <div x-show="open === <?= $i ?>" class="px-6 pb-6 pl-16 text-ink-2 leading-relaxed">
                 <?= h($f['a']) ?>
               </div>
             </div>

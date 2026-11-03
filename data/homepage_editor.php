@@ -74,7 +74,7 @@ return [
         ['success.eyebrow', 'Section label', 'text', 'Our students'],
         ['success.headline', 'Heading', 'text', 'Our Student Success Stories'],
         ['success.body', 'Description', 'textarea', 'Meet students who have started their journey abroad with Manami Education.'],
-        ['success.total_count', 'Counter value', 'number', '1240'],
+        ['success.total_count', 'Counter value', 'number', '300'],
         ['success.total_label', 'Counter label', 'text', 'Students guided'],
     ],
     'Free assessment' => [

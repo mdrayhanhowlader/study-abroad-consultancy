@@ -3,9 +3,12 @@ require __DIR__ . '/partials/_icons.php';
 require __DIR__ . '/app/bootstrap.php';
 
 $site         = App\DataAdapter::site();
-$products     = App\Product::all();
+$products     = array_values(array_filter(
+    App\Product::all(),
+    static fn(array $product): bool => in_array($product['type'], ['physical', 'digital'], true)
+));
 $typeFilter   = $_GET['type'] ?? '';
-if (in_array($typeFilter, ['physical','digital','course'], true)) {
+if (in_array($typeFilter, ['physical','digital'], true)) {
     $products = array_values(array_filter($products, fn($p) => $p['type'] === $typeFilter));
 }
 
@@ -78,11 +81,6 @@ $bkashMerchant    = App\Settings::get('bkash_merchant_number', $bkashCfg['bkash'
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
   <script defer src="assets/js/main.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
 
@@ -90,65 +88,81 @@ $bkashMerchant    = App\Settings::get('bkash_merchant_number', $bkashCfg['bkash'
   <?php require __DIR__ . '/partials/header.php'; ?>
 
   <main>
-    <section class="relative overflow-hidden" style="background: linear-gradient(180deg, #1E242B 0%, #1A2B6D 100%);">
-      <div class="bg-orb" style="width:500px;height:500px;background:#006837;top:-100px;right:-100px;opacity:0.2"></div>
-      <div class="mx-auto max-w-7xl px-4 lg:px-6 py-20 lg:py-32 relative">
+    <section class="books-hero relative overflow-hidden">
+      <div class="books-hero-orb books-hero-orb--one"></div>
+      <div class="books-hero-orb books-hero-orb--two"></div>
+      <div class="mx-auto max-w-7xl px-4 lg:px-6 py-14 sm:py-20 lg:py-24 relative grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-16 items-center">
         <div class="max-w-3xl">
           <div class="eyebrow" data-num="06" style="color:#B8923B"><?= h(t('books.eyebrow')) ?></div>
-          <h1 class="mt-5 font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] text-white tracking-tight"><?= h(t('books.headline')) ?></h1>
-          <p class="mt-6 text-white/80 text-lg max-w-2xl"><?= h(t('books.body')) ?></p>
+          <h1 class="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] text-white tracking-tight"><?= h(t('books.headline')) ?></h1>
+          <p class="mt-6 text-white/75 text-base sm:text-lg leading-relaxed max-w-2xl"><?= h(t('books.body')) ?></p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a href="#products" class="btn btn-primary"><?= h(t('books.cta_browse')) ?> →</a>
             <a href="index.php#contact" class="btn btn-ghost text-white border border-white/30 hover:bg-white/10"><?= h(t('books.cta_talk')) ?></a>
           </div>
+        </div>
+        <div class="books-hero-art hidden sm:flex items-center justify-center" aria-hidden="true">
+          <div class="books-hero-art__glow"></div>
+          <div class="books-hero-book books-hero-book--back"></div>
+          <div class="books-hero-book books-hero-book--front">
+            <span class="books-hero-book__mark">日</span>
+            <span class="books-hero-book__rule"></span>
+            <span class="books-hero-book__caption"><?= h(t('nav.study_in_japan')) ?></span>
+          </div>
+          <div class="books-hero-stamp">Manami<br>Education</div>
         </div>
       </div>
     </section>
 
     <section id="products" class="section bg-paper">
       <div class="mx-auto max-w-7xl px-4 lg:px-6">
-        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-9 sm:mb-12">
           <div>
             <div class="eyebrow" data-num="07"><?= h(t('books.all_products')) ?></div>
             <p class="mt-3 text-sm text-ink-3"><?= h(t('books.all_products_sub')) ?></p>
           </div>
-          <div class="flex items-center gap-1 text-sm flex-wrap">
-            <a href="books.php" class="px-3 py-1.5 rounded-sm border <?= !$typeFilter ? 'bg-ink text-white border-ink' : 'bg-white border-hair text-ink-2 hover:border-ink' ?>" style="<?= !$typeFilter ? '' : 'border-color:#E5E1D9' ?>"><?= h(t('books.filter_all')) ?></a>
-            <a href="?type=physical" class="px-3 py-1.5 rounded-sm border <?= $typeFilter==='physical' ? 'bg-ink text-white border-ink' : 'bg-white border-hair text-ink-2 hover:border-ink' ?>" style="border-color:#E5E1D9"><?= h(t('books.filter_physical')) ?></a>
-            <a href="?type=digital"  class="px-3 py-1.5 rounded-sm border <?= $typeFilter==='digital'  ? 'bg-ink text-white border-ink' : 'bg-white border-hair text-ink-2 hover:border-ink' ?>" style="border-color:#E5E1D9"><?= h(t('books.filter_digital')) ?></a>
-            <a href="?type=course"   class="px-3 py-1.5 rounded-sm border <?= $typeFilter==='course'   ? 'bg-ink text-white border-ink' : 'bg-white border-hair text-ink-2 hover:border-ink' ?>" style="border-color:#E5E1D9"><?= h(t('books.filter_course')) ?></a>
+          <div class="book-filters flex items-center gap-2 text-sm flex-wrap">
+            <a href="books.php" class="book-filter <?= !$typeFilter ? 'is-active' : '' ?>"><?= h(t('books.filter_all')) ?></a>
+            <a href="?type=physical" class="book-filter <?= $typeFilter==='physical' ? 'is-active' : '' ?>"><?= h(t('books.filter_physical')) ?></a>
+            <a href="?type=digital" class="book-filter <?= $typeFilter==='digital' ? 'is-active' : '' ?>"><?= h(t('books.filter_digital')) ?></a>
           </div>
         </div>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-hair" style="background:#E5E1D9">
+        <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-7">
           <?php if (!$products): ?>
-            <div class="sm:col-span-2 lg:col-span-3 bg-paper text-center text-ink-3 text-sm py-12"><?= h(t('books.no_products')) ?></div>
+            <div class="sm:col-span-2 xl:col-span-3 book-empty-state">
+              <span class="book-empty-state__icon" aria-hidden="true">📚</span>
+              <p><?= h(t('books.no_products')) ?></p>
+            </div>
           <?php else: foreach ($products as $i => $p):
             $cover = $p['cover_id'] ? App\Content::mediaUrl((int) $p['cover_id']) : null;
             $typeKey = 'type_' . $p['type'];
           ?>
-            <article class="bg-paper p-6 flex flex-col group hover:bg-white transition reveal">
-                <a href="<?= h(url('books/' . $p['slug'])) ?>" class="block aspect-[4/3] bg-paper-2 mb-5 relative overflow-hidden" style="background:#F4F1EA">
+            <article class="book-product-card flex flex-col group reveal">
+                <a href="<?= h(url('books/' . $p['slug'])) ?>" class="book-product-card__cover block aspect-[4/3] sm:aspect-[5/4] relative overflow-hidden">
                 <?php if ($cover): ?>
                   <img src="<?= h($cover) ?>" alt="<?= h($p['title']) ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
                 <?php else: ?>
-                  <div class="absolute inset-0 grid place-items-center text-ink-3/30">
-                    <svg class="w-20 h-20" viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h12a3 3 0 0 1 3 3v15a1 1 0 0 1-1 1H7a3 3 0 0 1-3-3V3zm12 2H6v13a1 1 0 0 0 1 1h11V5zM8 7h7v2H8V7zm0 4h7v2H8v-2z"/></svg>
+                  <div class="absolute inset-0 grid place-items-center text-brand/60">
+                    <svg class="w-16 h-16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h12a3 3 0 0 1 3 3v15a1 1 0 0 1-1 1H7a3 3 0 0 1-3-3V3zm12 2H6v13a1 1 0 0 0 1 1h11V5zM8 7h7v2H8V7zm0 4h7v2H8v-2z"/></svg>
                   </div>
                 <?php endif; ?>
-                <span class="absolute top-3 left-3 text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 bg-white text-ink"><?= h(t('books.' . $typeKey)) ?></span>
+                <span class="book-product-card__badge"><?= h(t('books.' . $typeKey)) ?></span>
               </a>
-              <div class="flex items-center gap-2">
-                <span class="font-display italic text-xs text-gold" style="color:#B8923B"><?= str_pad((string)($i+1), 2, '0', STR_PAD_LEFT) ?>.</span>
-                <h3 class="font-display text-xl font-semibold text-ink leading-snug flex-1"><a href="<?= h(url('books/' . $p['slug'])) ?>" class="hover:text-brand"><?= h($p['title']) ?></a></h3>
-              </div>
-              <p class="mt-2 text-sm text-ink-2 flex-1"><?= h($p['summary'] ?? '') ?></p>
-              <div class="mt-5 flex items-end justify-between">
+              <div class="book-product-card__body flex-1 flex flex-col">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="book-product-card__number"><?= str_pad((string)($i+1), 2, '0', STR_PAD_LEFT) ?></span>
+                  <span class="text-[10px] uppercase tracking-[0.16em] text-ink-3"><?= h(t('books.' . $typeKey)) ?></span>
+                </div>
+                <h3 class="font-display text-xl font-semibold text-ink leading-snug"><a href="<?= h(url('books/' . $p['slug'])) ?>" class="hover:text-brand"><?= h($p['title']) ?></a></h3>
+                <p class="mt-2.5 text-sm text-ink-2 leading-relaxed flex-1"><?= h($p['summary'] ?? '') ?></p>
+              <div class="mt-6 pt-4 border-t border-hair flex items-end justify-between gap-3">
                 <div>
                   <div class="font-display text-2xl font-bold text-ink"><?= format_bdt((float) $p['price_bdt']) ?></div>
                   <?php if ($p['type'] === 'physical'): ?><div class="text-[10px] text-ink-3 mt-1"><?= h(t('common.in_stock', ['n' => (int) $p['stock']])) ?></div><?php endif; ?>
                 </div>
-                <button type="button" data-add-to-cart="<?= (int) $p['id'] ?>" class="btn btn-primary text-xs"><?= h(t('common.add_to_cart')) ?> →</button>
+                <button type="button" data-add-to-cart="<?= (int) $p['id'] ?>" class="btn btn-primary text-xs rounded-full"><?= h(t('common.add_to_cart')) ?> →</button>
+              </div>
               </div>
             </article>
           <?php endforeach; endif; ?>
@@ -213,7 +227,7 @@ $bkashMerchant    = App\Settings::get('bkash_merchant_number', $bkashCfg['bkash'
                   </label>
                 </div>
 
-                <div x-show="paymentMethod === 'bkash'" x-transition class="mt-5">
+                <div x-show="paymentMethod === 'bkash'" class="mt-5">
                   <div class="bg-gold/5 border border-gold/30 rounded-xl p-4 text-sm text-ink" style="background:rgba(184,146,59,0.05);border-color:rgba(184,146,59,0.3)">
                     <div class="font-semibold text-ink mb-1"><?= h(t('books.bkash_send')) ?> <span id="checkoutTotal" class="text-accent font-display">৳0</span> <?= h(t('books.bkash_to')) ?></div>
                     <div class="font-mono text-lg"><?= h($bkashMerchant) ?></div>
@@ -231,7 +245,7 @@ $bkashMerchant    = App\Settings::get('bkash_merchant_number', $bkashCfg['bkash'
                   </div>
                 </div>
 
-                <div x-show="paymentMethod === 'cod'" x-transition class="mt-5 bg-navy/5 border border-navy/20 rounded-xl p-4 text-sm text-ink" style="background:rgba(26,43,109,0.05);border-color:rgba(26,43,109,0.2)">
+                <div x-show="paymentMethod === 'cod'" class="mt-5 bg-navy/5 border border-navy/20 rounded-xl p-4 text-sm text-ink" style="background:rgba(26,43,109,0.05);border-color:rgba(26,43,109,0.2)">
                   <p>You have selected <strong>Cash on Delivery</strong>. Our team will call you to confirm the order before shipping. Please keep the exact amount ready.</p>
                 </div>
               </div>

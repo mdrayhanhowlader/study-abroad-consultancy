@@ -9,8 +9,8 @@ final class Lead
     {
         $where = [];
         $params = [];
-        if ($status) { $where[] = 'status=?'; $params[] = $status; }
-        if ($source) { $where[] = 'source=?'; $params[] = $source; }
+        if ($status) { $where[] = 'l.status=?'; $params[] = $status; }
+        if ($source) { $where[] = 'l.source=?'; $params[] = $source; }
         $sql = 'SELECT l.*, u.name AS assigned_name FROM leads l LEFT JOIN users u ON u.id=l.assigned_to';
         if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
         $sql .= ' ORDER BY l.id DESC LIMIT ' . (int) $limit;

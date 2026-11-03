@@ -5,8 +5,11 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS activity_log;
+DROP TABLE IF EXISTS ssw_document_checklist;
 DROP TABLE IF EXISTS ssw_stage_history;
 DROP TABLE IF EXISTS ssw_applications;
+DROP TABLE IF EXISTS class_holidays;
+DROP TABLE IF EXISTS class_batches;
 DROP TABLE IF EXISTS pixel_events_log;
 DROP TABLE IF EXISTS payment_transactions;
 DROP TABLE IF EXISTS leads;
@@ -116,6 +119,21 @@ CREATE TABLE testimonials (
     active     TINYINT(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE success_stories (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(120) NOT NULL,
+    photo_id    INT UNSIGNED NULL,
+    destination VARCHAR(80) NOT NULL,
+    story_year  SMALLINT UNSIGNED NOT NULL,
+    program     VARCHAR(160) NOT NULL,
+    quote       TEXT NOT NULL,
+    sort        INT NOT NULL DEFAULT 0,
+    active      TINYINT(1) NOT NULL DEFAULT 1,
+    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_success_stories_active_sort (active, sort, id),
+    CONSTRAINT fk_success_story_photo FOREIGN KEY (photo_id) REFERENCES media(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE faqs (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     question   VARCHAR(255) NOT NULL,
@@ -152,6 +170,7 @@ CREATE TABLE products (
     cover_id      INT UNSIGNED NULL,
     gallery_json  JSON NULL,
     file_path     VARCHAR(255) NULL,
+    preview_pdf_path VARCHAR(255) NULL,
     stock         INT NOT NULL DEFAULT 0,
     sold          INT NOT NULL DEFAULT 0,
     sort          INT NOT NULL DEFAULT 0,
@@ -312,6 +331,21 @@ CREATE TABLE ssw_stage_history (
     CONSTRAINT fk_ssh_user FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE ssw_document_checklist (
+    id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    application_id   INT UNSIGNED NOT NULL,
+    document_key     VARCHAR(40) NOT NULL,
+    status           ENUM('not_started','received','verified','not_applicable') NOT NULL DEFAULT 'not_started',
+    notes            VARCHAR(500) NULL,
+    updated_by       INT UNSIGNED NULL,
+    created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_ssw_document (application_id, document_key),
+    INDEX idx_ssw_document_status (status),
+    CONSTRAINT fk_ssw_document_app FOREIGN KEY (application_id) REFERENCES ssw_applications(id) ON DELETE CASCADE,
+    CONSTRAINT fk_ssw_document_user FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE pixel_events_log (
     id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     event_name       VARCHAR(60) NOT NULL,
@@ -326,6 +360,28 @@ CREATE TABLE pixel_events_log (
     INDEX idx_page (page_url(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE class_batches (
+    id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    batch_code       VARCHAR(40) NOT NULL UNIQUE,
+    course_name      VARCHAR(120) NOT NULL,
+    start_date       DATE NOT NULL,
+    duration_months  TINYINT UNSIGNED NOT NULL DEFAULT 4,
+    class_weekdays   VARCHAR(20) NOT NULL,
+    class_time       VARCHAR(80) NULL,
+    class_location   VARCHAR(120) NULL,
+    active           TINYINT(1) NOT NULL DEFAULT 1,
+    created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_class_batches_active_start (active, start_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE class_holidays (
+    id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    holiday_date DATE NOT NULL UNIQUE,
+    title        VARCHAR(120) NOT NULL,
+    created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO users (name, email, password_hash, role, must_change_pw) VALUES
@@ -338,7 +394,7 @@ INSERT INTO settings (`key`,`value`) VALUES
 ('contact_phone',     '+880 1817-890995'),
 ('contact_phone_tel', '+8801817890995'),
 ('contact_email',     'manamieducationbd@gmail.com'),
-('contact_address',   '20/A, B, Block No-2, Gate No-3, Monipuripara, Farmgate, Dhaka, Bangladesh, 1215'),
+('contact_address',   '20/A, B, Block No-2, Gate No-3, Monipuripara, Farmgate, Dhaka, 1215, Bangladesh'),
 ('contact_address_link', 'https://maps.google.com/?q=20%2FA+B+Block+No-2+Monipuripara+Farmgate+Dhaka+1215'),
 ('domain',            'https://manamieducation.com.bd'),
 ('og_image',          'https://manamieducation.com.bd/assets/img/og-default.jpg'),
@@ -346,7 +402,7 @@ INSERT INTO settings (`key`,`value`) VALUES
 ('event_date',        DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 21 DAY), '%Y-%m-%d')),
 ('social_json',       '[{"label":"Facebook","href":"https://facebook.com/","icon":"facebook"},{"label":"Instagram","href":"https://instagram.com/","icon":"instagram"},{"label":"YouTube","href":"https://youtube.com/","icon":"youtube"},{"label":"TikTok","href":"https://tiktok.com/","icon":"tiktok"},{"label":"X","href":"https://x.com/","icon":"x"}]'),
 ('nav_json',          '[{"key":"home","href":"index.php"},{"key":"quick_order","href":"quick-order.php"},{"key":"study_in_japan","children":[{"key":"student_visa","href":"services.php#student-visa"},{"key":"ssw","href":"services.php#ssw"},{"key":"titp","href":"services.php#titp"},{"key":"japanese_lang","href":"services.php#japanese"},{"key":"ielts","href":"services.php#ielts"}]},{"key":"destinations","children":[{"key":"destinations_page","href":"destinations.php"},{"key":"japan","href":"country/japan"},{"key":"australia","href":"country/australia"},{"key":"canada","href":"country/canada"},{"key":"united_kingdom","href":"country/united-kingdom"},{"key":"united_states","href":"country/united-states"},{"key":"europe","href":"country/europe"},{"key":"malaysia","href":"country/malaysia"},{"key":"south_korea","href":"country/south-korea"}]},{"key":"courses","href":"courses.php"},{"key":"books_courses","href":"books.php"},{"key":"events","href":"events.php"}]'),
-('stats_json',        '[{"label":"Students Placed","value":1200},{"label":"Partner Institutions","value":85},{"label":"Courses Available","value":240},{"label":"Visa Success Rate","value":"99%"}]'),
+('stats_json',        '[{"label":"Students Placed","value":300},{"label":"Partner Institutions","value":85},{"label":"Courses Available","value":240},{"label":"Visa Success Rate","value":"99%"}]'),
 ('logo_image_id',     ''),
 ('favicon_image_id',     ''),
 ('apple_touch_icon_image_id', ''),
@@ -363,11 +419,11 @@ INSERT INTO countries (code,name,flag_css,description,sort,active,featured) VALU
 ('kr','South Korea','flag-kr','Future destination',8,1,0);
 
 INSERT INTO services (slug,title,icon,summary,body,cta_text,cta_href,sort,active) VALUES
-('student-visa','Japan Student Visa (Ryugaku)','book','Enrol at a Japanese language school, university, or college.','We help you shortlist JLPT-friendly schools, prepare documents, and file your COE + visa application end to end. Typical timeline: 4–6 months.','Start Student Visa','#contact',1,1),
-('ssw','SSW — Specified Skilled Worker','route','Work in Japan under the Specified Skilled Worker visa.','SSW lets you work in 16 designated industries (care, construction, food service, etc.). We match you with vetted employers, prepare JLPT N4 / skills-test evidence, and file your visa.','Start SSW','#contact',2,1),
-('titp','TITP — Technical Intern Training Program','plane','Train and work in Japan for 1–5 years.','TITP places you with a sending organisation and Japanese host company in industries like agriculture, manufacturing, and textiles. Includes JLPT N4 / N3 prep.','Start TITP','#contact',3,1),
+('student-visa','Student Visa Support','book','Enrol at a Japanese language school, university, or college.','We help you shortlist JLPT-friendly schools, prepare documents, and file your COE + visa application end to end. Typical timeline: 4–6 months.','Start Student Visa','#contact',1,1),
+('ssw','Skilled Worker Programme (SSW)','route','Work in Japan under the Specified Skilled Worker visa.','SSW lets you work in 16 designated industries (care, construction, food service, etc.). We match you with vetted employers, prepare JLPT N4 / skills-test evidence, and file your visa.','Start SSW','#contact',2,1),
+('titp','Technical Intern Training (TITP)','plane','Train and work in Japan for 1–5 years.','TITP places you with a sending organisation and Japanese host company in industries like agriculture, manufacturing, and textiles. Includes JLPT N4 / N3 prep.','Start TITP','#contact',3,1),
 ('ielts','IELTS Preparation','award','Band 6.5+ for English-medium study.','A 6-week intensive covering all four modules with mock tests and personalised feedback.','Enrol Now','#contact',4,1),
-('jlpt','Japanese Language (JLPT N5–N1)','globe','From zero to JLPT N1 with native-trained teachers.','Levels N5 → N1, weekend and weekday batches, in-person (Dhanmondi) and online.','Enrol Now','#contact',5,1),
+('jlpt','Japanese Language Courses (JLPT N5–N1)','globe','From zero to JLPT N1 with native-trained teachers.','Levels N5 → N1, weekend and weekday batches, in-person (Dhanmondi) and online.','Enrol Now','#contact',5,1),
 ('career-counselling','Career Counselling','compass','Personalised pathway to Japan.','Free 30-minute assessment with a registered counsellor: pick the right visa, the right school, and the right budget.','Book Free Session','#contact',6,1);
 
 INSERT INTO testimonials (name,country,rating,body,sort,active) VALUES

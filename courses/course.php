@@ -1,4 +1,7 @@
 <?php
+header('Location: ../books.php', true, 301);
+exit;
+
 require __DIR__ . '/../partials/_icons.php';
 require __DIR__ . '/../app/bootstrap.php';
 $site = App\DataAdapter::site();

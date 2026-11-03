@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/helpers.php';
 
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 $cfg = require __DIR__ . '/../config/config.php';
 date_default_timezone_set($cfg['app']['timezone']);
 ini_set('display_errors', $cfg['app']['debug'] ? '1' : '0');

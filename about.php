@@ -40,11 +40,6 @@ $canonical  = $site['brand']['domain'] . '/about.php';
   <?php require __DIR__ . '/partials/favicon.php'; ?>
 
   <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
-  </script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper">
   <?php require __DIR__ . '/partials/topbar.php'; ?>
@@ -204,7 +199,7 @@ $canonical  = $site['brand']['domain'] . '/about.php';
         <div class="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-px bg-hair" style="background:#E5E1D9">
           <?php
             $stats = [
-                ['value' => '1,200+', 'label' => t('about_extra.value_students')],
+                ['value' => '300+',   'label' => t('about_extra.value_students')],
                 ['value' => '50+',    'label' => t('about_extra.value_partners')],
                 ['value' => '20+',    'label' => t('about_extra.value_employers')],
                 ['value' => '99%',    'label' => t('about_extra.value_success')],

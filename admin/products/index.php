@@ -7,9 +7,9 @@ $pageTitle = 'Products';
 $status = $_GET['status'] ?? '';
 $filterType = $_GET['type'] ?? '';
 $where = []; $params = [];
-if ($status === 'active')  { $where[] = 'active=1'; }
-if ($status === 'inactive'){ $where[] = 'active=0'; }
-if (in_array($filterType, ['physical','digital','course'], true)) { $where[] = 'type=?'; $params[] = $filterType; }
+if ($status === 'active')  { $where[] = 'p.active=1'; }
+if ($status === 'inactive'){ $where[] = 'p.active=0'; }
+if (in_array($filterType, ['physical','digital','course'], true)) { $where[] = 'p.type=?'; $params[] = $filterType; }
 $sql = 'SELECT p.*, m.path AS cover_path FROM products p LEFT JOIN media m ON m.id=p.cover_id';
 if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
 $sql .= ' ORDER BY p.sort, p.id DESC';

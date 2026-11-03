@@ -27,55 +27,76 @@ $supportSteps = [
 ?>
 <section id="services" class="pathways-section section bg-paper">
   <div class="mx-auto max-w-7xl px-4 lg:px-6">
-    <div class="pathways-heading max-w-2xl">
-      <div class="eyebrow" data-num="04"><?= h(App\Homepage::text('services.eyebrow', t('services.eyebrow'))) ?></div>
-      <h2 class="mt-5 font-display text-4xl sm:text-5xl font-bold leading-tight text-ink"><?= h(App\Homepage::text('services.headline', t('services.headline'))) ?></h2>
-      <p class="mt-4 text-ink-2 leading-relaxed"><?= h(App\Homepage::text('services.body', t('services.body'))) ?></p>
+    <div class="pathways-intro">
+      <div class="pathways-heading">
+        <div class="eyebrow" data-num="04"><?= h(App\Homepage::text('services.eyebrow', t('services.eyebrow'))) ?></div>
+        <h2 class="mt-5 font-display text-4xl sm:text-5xl font-bold leading-tight text-ink"><?= h(App\Homepage::text('services.headline', t('services.headline'))) ?></h2>
+        <p class="mt-4 text-ink-2 leading-relaxed"><?= h(App\Homepage::text('services.body', t('services.body'))) ?></p>
+      </div>
+      <ol class="pathways-steps" aria-label="Your journey">
+        <li><span>01</span> Choose a route</li>
+        <li><span>02</span> Get prepared</li>
+        <li><span>03</span> Start your journey</li>
+      </ol>
     </div>
 
-    <div class="pathways-grid mt-12 grid md:grid-cols-3 gap-5 lg:gap-6">
+    <div class="pathways-grid">
       <?php foreach ($featured as $i => $f):
         $svg = $japanSvgs[$f['slug']] ?? 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z';
         $num = str_pad((string)($i + 1), 2, '0', STR_PAD_LEFT);
       ?>
-        <article class="pathway-card bg-white p-7 lg:p-8 flex flex-col group transition reveal">
-          <div class="flex items-center justify-between gap-3">
+        <article class="pathway-card group reveal">
+          <div class="pathway-visual" aria-hidden="true">
             <span class="pathway-number"><?= $num ?></span>
-            <span class="pathway-line" aria-hidden="true"></span>
+            <span class="pathway-route-label"><?= h(strtoupper($f['slug'] === 'student-visa' ? 'Study' : ($f['slug'] === 'ssw' ? 'Skilled work' : 'Technical training'))) ?></span>
+            <span class="pathway-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="<?= h($svg) ?>"/></svg>
+            </span>
           </div>
-          <div class="pathway-icon mt-6 w-12 h-12 grid place-items-center text-brand transition">
-            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="<?= h($svg) ?>"/></svg>
+          <div class="pathway-card-copy">
+            <h3 class="font-display text-2xl font-bold text-ink leading-tight"><?= h($f['title']) ?></h3>
+            <p class="mt-3 text-sm text-ink-2 leading-relaxed"><?= h($f['desc']) ?></p>
+            <a href="<?= h($f['cta_href'] ?: '#contact') ?>" class="pathway-link">
+              <?= h($f['cta_text'] ?: App\Homepage::text('services.cta_get_started', t('services.cta_get_started'))) ?>
+              <span aria-hidden="true">↗</span>
+            </a>
           </div>
-          <h3 class="mt-5 font-display text-2xl font-bold text-ink leading-tight"><?= h($f['title']) ?></h3>
-          <p class="mt-3 text-sm text-ink-2 leading-relaxed flex-1"><?= h($f['desc']) ?></p>
-          <a href="<?= h($f['cta_href'] ?: '#contact') ?>" class="mt-6 btn-arrow">
-            <?= h($f['cta_text'] ?: App\Homepage::text('services.cta_get_started', t('services.cta_get_started'))) ?>
-          </a>
         </article>
       <?php endforeach; ?>
     </div>
 
-    <?php if ($other): ?>
-    <div class="mt-12 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-px bg-hair" style="background:#E5E1D9">
-      <?php foreach ($other as $s): ?>
-        <div class="bg-paper p-5 text-center hover:bg-white transition group">
-          <div class="w-10 h-10 mx-auto grid place-items-center text-ink group-hover:text-brand transition">
-            <?= icon($s['icon'], 'w-6 h-6') ?>
-          </div>
-          <div class="mt-3 text-sm font-semibold text-ink"><?= h($s['title']) ?></div>
-        </div>
-      <?php endforeach; ?>
+    <?php if ($other || $supportSteps): ?>
+    <div class="pathways-support">
+      <div class="pathways-support-heading">
+        <span>Beyond the visa</span>
+        <p>Practical help for every step, from your first lesson to departure day.</p>
+      </div>
+      <div class="pathways-support-grid">
+        <?php foreach ($other as $s): ?>
+        <a href="<?= h($s['cta_href'] ?: '#contact') ?>" class="pathways-support-item group">
+          <span class="pathways-support-icon"><?= icon($s['icon'], 'w-5 h-5') ?></span>
+          <span class="pathways-support-copy">
+            <strong><?= h($s['title']) ?></strong>
+            <?php if ($s['desc'] !== ''): ?><span><?= h($s['desc']) ?></span><?php endif; ?>
+          </span>
+          <span class="pathways-support-arrow" aria-hidden="true">↗</span>
+        </a>
+        <?php endforeach; ?>
       <?php foreach ($supportSteps as $step): ?>
-        <a href="#contact" class="bg-paper p-5 text-center hover:bg-white transition group">
-          <div class="w-10 h-10 mx-auto grid place-items-center text-ink group-hover:text-brand transition" aria-hidden="true">
+        <a href="#contact" class="pathways-support-item group">
+          <span class="pathways-support-icon" aria-hidden="true">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
               <path d="<?= h($step['icon']) ?>"/>
             </svg>
-          </div>
-          <div class="mt-3 text-sm font-semibold text-ink"><?= h($step['title']) ?></div>
-          <p class="mt-2 text-xs leading-relaxed text-ink-3"><?= h($step['description']) ?></p>
+          </span>
+          <span class="pathways-support-copy">
+            <strong><?= h($step['title']) ?></strong>
+            <span><?= h($step['description']) ?></span>
+          </span>
+          <span class="pathways-support-arrow" aria-hidden="true">↗</span>
         </a>
       <?php endforeach; ?>
+      </div>
     </div>
     <?php endif; ?>
   </div>

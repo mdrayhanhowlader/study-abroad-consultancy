@@ -42,6 +42,7 @@ return [
         'max_video_bytes' => 100 * 1024 * 1024,
         'max_screenshot_bytes' => 4 * 1024 * 1024,
     ],
+    'private_book_preview_path' => getenv('PRIVATE_BOOK_PREVIEW_PATH') ?: dirname(__DIR__, 3) . '/temp/manami-private-book-previews',
     'session' => [
         'name'        => 'manami_sess',
         'lifetime'    => 60 * 60 * 8,

@@ -39,6 +39,7 @@ $canonical  = $site['brand']['domain'] . '/thanks.php';
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <?php require __DIR__ . '/partials/favicon.php'; ?>
+  <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 </head>
 <body class="font-sans text-ink antialiased bg-paper min-h-screen">
 
@@ -77,6 +78,7 @@ $canonical  = $site['brand']['domain'] . '/thanks.php';
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a href="index.php" class="btn btn-primary"><?= h(t('thanks.back_home')) ?> →</a>
           <a href="books.php" class="btn btn-secondary"><?= h(t('thanks.continue_shopping')) ?></a>
+          <?php if ($order): ?><a href="<?= h(url('order-track.php?code=' . urlencode($order['code']))) ?>" class="btn btn-secondary"><?= h(t('order_tracking.track_this_order')) ?></a><?php endif; ?>
         </div>
       </div>
     </div>

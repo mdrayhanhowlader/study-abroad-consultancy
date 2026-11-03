@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $redirect = 'index.php';
+    $redirect = '/admin/leads/index.php';
     if ($statusFilter) $redirect .= '?status=' . urlencode($statusFilter);
     if ($sourceFilter) $redirect .= ($statusFilter ? '&' : '?') . 'source=' . urlencode($sourceFilter);
     redirect($redirect);
