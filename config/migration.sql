@@ -260,4 +260,16 @@ CREATE TABLE IF NOT EXISTS class_holidays (
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- -----------------------------------------------------------
+-- 9. ORDER TRACKING RATE LIMIT
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS order_tracking_attempts (
+    ip_hash           CHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,
+    failed_attempts   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    window_started_at DATETIME NOT NULL,
+    blocked_until     DATETIME NULL,
+    updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_order_tracking_updated (updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;

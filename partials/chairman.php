@@ -19,7 +19,7 @@ $chairmanName = $chairman['name'] ?: 'Our Chairman';
       <div class="absolute -inset-3 rotate-3 rounded-[2rem] border border-gold/20 bg-paper-2/70" aria-hidden="true"></div>
       <div class="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-paper-2 via-white to-[#efe9dc] shadow-2xl shadow-ink/10 ring-1 ring-ink/10">
         <?php if ($chairman['photo']): ?>
-          <img src="<?= h($chairman['photo']) ?>" alt="<?= h($chairmanName) ?>" class="h-full w-full object-cover" loading="eager" fetchpriority="high">
+          <img src="<?= h($chairman['photo']) ?>" alt="<?= h($chairmanName) ?>" class="h-full w-full object-cover" loading="lazy" decoding="async">
         <?php else: ?>
           <div class="absolute inset-0 grid place-items-center" aria-label="Chairman portrait placeholder">
             <svg viewBox="0 0 300 380" class="h-[82%] w-[82%] opacity-80" role="img" aria-hidden="true">

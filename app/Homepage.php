@@ -38,11 +38,4 @@ final class Homepage
         unset($story);
         return $stories;
     }
-
-    public static function destinations(string $fallback = 'Tokyo,Osaka,Kyoto,Yokohama'): array
-    {
-        $items = array_map('trim', explode(',', self::text('visual.route_destinations', $fallback)));
-        $items = array_values(array_filter($items, static fn(string $item): bool => $item !== ''));
-        return $items ?: array_map('trim', explode(',', $fallback));
-    }
 }

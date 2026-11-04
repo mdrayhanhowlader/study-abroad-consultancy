@@ -4,7 +4,10 @@ require __DIR__ . '/app/bootstrap.php';
 $site = App\DataAdapter::site();
 
 $code = preg_replace('/[^A-Z0-9\-]/i', '', (string) ($_GET['code'] ?? ''));
-$order = $code ? App\Order::findByCode($code) : null;
+$authorizedCode = (string) ($_SESSION['_order_thanks_code'] ?? '');
+$order = $code !== '' && $authorizedCode !== '' && hash_equals($authorizedCode, $code)
+    ? App\Order::findByCode($code)
+    : null;
 
 $page_title = ($order ? 'Order ' . $order['code'] : 'Thank you') . ' — ' . $site['brand']['full_name'];
 $page_desc  = t('thanks.verify_body');

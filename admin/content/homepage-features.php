@@ -52,7 +52,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         App\Settings::set('homepage_video_url', $videoUrl);
         App\Settings::set('homepage_video_title', $videoTitle);
         App\Settings::set('homepage_video_caption', $videoCaption);
-        App\Cache::clear();
         App\Content::log((int) App\Auth::user()['id'], 'homepage.features.update', 'homepage');
         App\Flash::set('success', 'Homepage features saved.');
     } catch (Throwable $e) {

@@ -101,7 +101,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $values['success.stories'] = $savedStories;
     $current = array_merge($current, $values);
     App\Settings::set('homepage_content_' . $postedLang, json_encode($current, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-    App\Cache::clear();
     App\Content::log((int) App\Auth::user()['id'], 'homepage.content.update', 'homepage');
     App\Flash::set('success', 'Homepage content saved for ' . App\I18n::nativeName($postedLang) . '.');
     redirect('/admin/homepage.php?lang=' . urlencode($postedLang));
@@ -147,7 +146,7 @@ require __DIR__ . '/_layout/sidebar.php';
                 $fallback = $fieldDef[3] ?? null;
                 $default = $fallback ?? t($key);
                 $value = $content[$key] ?? $default;
-                $wide = $type === 'textarea' || $type === 'url' || $key === 'visual.route_destinations';
+                $wide = $type === 'textarea' || $type === 'url';
               ?>
               <label class="block <?= $wide ? 'md:col-span-2' : '' ?>">
                 <span class="text-xs font-semibold uppercase tracking-wide text-gray-700"><?= h($label) ?></span>
@@ -156,9 +155,7 @@ require __DIR__ . '/_layout/sidebar.php';
                 <?php else: ?>
                   <input name="content[<?= h($key) ?>]" type="<?= $type === 'number' ? 'number' : 'text' ?>" <?= $type === 'number' ? 'min="0" step="1"' : '' ?> inputmode="<?= $type === 'url' ? 'url' : 'text' ?>" value="<?= h((string) $value) ?>" class="mt-1.5 w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm">
                 <?php endif; ?>
-                <?php if ($key === 'visual.route_destinations'): ?>
-                  <span class="mt-1 block text-xs text-gray-500">City names only; the route animation keeps “Dhaka →” fixed.</span>
-                <?php elseif ($type === 'url'): ?>
+                <?php if ($type === 'url'): ?>
                   <span class="mt-1 block text-xs text-gray-500">Use an https image URL or a path under uploads/.</span>
                 <?php endif; ?>
               </label>

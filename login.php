@@ -10,10 +10,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $code = trim((string) ($_POST['code'] ?? ''));
     $email = trim((string) ($_POST['email'] ?? ''));
     if ($code && $email) {
-        $o = App\Database::fetchOne(
-            'SELECT * FROM orders WHERE code=? AND (email=? OR phone=?)',
-            [$code, $email, $email]
-        );
+        $o = App\Order::findForTrackingByContact($code, $email);
         if ($o) {
             $order = $o;
         } else {
@@ -66,7 +63,7 @@ $canonical  = $site['brand']['domain'] . '/login.php';
           <?= App\Csrf::field() ?>
           <label class="block">
             <span class="text-[10px] font-semibold text-ink-2 uppercase tracking-widest">Order code</span>
-            <input name="code" required placeholder="MAN-20260621-XXXX" value="<?= h($_POST['code'] ?? '') ?>" class="input mt-2 font-mono">
+            <input name="code" required placeholder="MAN-YYYYMMDD-24-character-code" value="<?= h($_POST['code'] ?? '') ?>" class="input mt-2 font-mono">
           </label>
           <label class="block">
             <span class="text-[10px] font-semibold text-ink-2 uppercase tracking-widest">Email or phone</span>

@@ -49,7 +49,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     App\Settings::set($map[$k], (string) $r['id']);
                 }
             }
-            App\Cache::clear();
             App\Flash::set('success', 'Brand updated.');
         } elseif ($action === 'contact') {
             foreach (['contact_phone','contact_phone_tel','contact_email','contact_address','contact_address_link'] as $k) {
@@ -93,12 +92,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 if (!is_array($d)) throw new RuntimeException('Invalid JSON for navigation menu.');
                 App\Settings::set('nav_json', json_encode($d, JSON_UNESCAPED_UNICODE));
             }
-            App\Cache::clear();
             App\Flash::set('success', 'Navigation menu updated.');
         } elseif ($action === 'pixel') {
             App\Settings::set('pixel_id', trim((string) ($_POST['pixel_id'] ?? '')));
             App\Settings::set('pixel_enabled', !empty($_POST['pixel_enabled']) ? '1' : '0');
-            App\Cache::clear();
             App\Flash::set('success', 'Pixel settings updated.');
         } elseif ($action === 'payment') {
             foreach (['sslcommerz_store_id', 'sslcommerz_store_pass', 'sslcommerz_sandbox'] as $k) {

@@ -1,6 +1,4 @@
-/* Custom interactivity for the landing page.
-   Alpine handles most UI (mobile menu, accordion, testimonial slider, countdown, form).
-   This file adds scroll reveal + animated stat counters. */
+/* Custom page interactivity not covered by Alpine components. */
 
 document.addEventListener('DOMContentLoaded', () => {
   /* ---------- Scroll reveal ---------- */
@@ -61,36 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-/* ---------- Alpine.js components ---------- */
-function countdown(targetIso) {
-  return {
-    units: [
-      { k: 'Days',    v: '00' },
-      { k: 'Hours',   v: '00' },
-      { k: 'Minutes', v: '00' },
-      { k: 'Seconds', v: '00' },
-    ],
-    _t: null,
-    start() {
-      const tick = () => {
-        const diff = Math.max(0, new Date(targetIso) - new Date());
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        this.units = [
-          { k: 'Days',    v: String(d).padStart(2, '0') },
-          { k: 'Hours',   v: String(h).padStart(2, '0') },
-          { k: 'Minutes', v: String(m).padStart(2, '0') },
-          { k: 'Seconds', v: String(s).padStart(2, '0') },
-        ];
-      };
-      tick();
-      this._t = setInterval(tick, 1000);
-    }
-  };
-}
 
 function submitAssessmentForm(form) {
   const button = form.querySelector('button[type="submit"]');

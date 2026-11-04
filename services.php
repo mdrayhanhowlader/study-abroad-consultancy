@@ -120,7 +120,7 @@ $activeSection = $allSections[$currentHash] ?? null;
             <h2 class="mt-4 font-display text-4xl sm:text-5xl font-bold text-ink leading-[1.05] tracking-tight"><?= h($svc['title']) ?></h2>
             <p class="mt-4 text-ink-2 text-lg leading-relaxed"><?= h($svc['desc']) ?></p>
             <?php if (!empty($svc['body'])): ?>
-              <div class="mt-4 prose prose-sm text-ink-2"><?= $svc['body'] ?></div>
+              <div class="mt-4 prose prose-sm text-ink-2"><?= nl2br(h($svc['body'])) ?></div>
             <?php endif; ?>
             <div class="mt-8 space-y-3">
               <div class="hairline pt-5" style="border-color:#E5E1D9">

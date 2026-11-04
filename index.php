@@ -7,8 +7,8 @@ $countries    = App\DataAdapter::countries();
 $services     = App\DataAdapter::services();
 $stats        = App\DataAdapter::stats();
 $testimonials = App\DataAdapter::testimonials();
-$faqs         = App\DataAdapter::faqs();
 $posts        = App\DataAdapter::posts(3);
+$heroImage    = App\Homepage::text('visual.hero_image') ?: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1800&auto=format&fit=crop&q=80';
 
 $page_title = $site['brand']['full_name'] . ' — ' . t('hero.eyebrow');
 $page_desc  = t('hero.body') . ' ' . t('hero.slogan');
@@ -51,6 +51,10 @@ $org_jsonld = [
   <link rel="alternate" hreflang="bn"    href="<?= h($canonical) ?>?lang=bn">
   <link rel="alternate" hreflang="ja"    href="<?= h($canonical) ?>?lang=ja">
   <link rel="alternate" hreflang="x-default" href="<?= h($canonical) ?>">
+  <?php if (parse_url($heroImage, PHP_URL_HOST) === 'images.unsplash.com'): ?>
+    <link rel="preconnect" href="https://images.unsplash.com">
+  <?php endif; ?>
+  <link rel="preload" as="image" href="<?= h($heroImage) ?>" fetchpriority="high">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="<?= h($site['brand']['full_name']) ?>">

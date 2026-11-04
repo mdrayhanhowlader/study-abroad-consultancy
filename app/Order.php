@@ -7,6 +7,8 @@ use RuntimeException;
 
 final class Order
 {
+    private const TRACKING_MAX_FAILURES = 10;
+
     public static function place(array $customer, string $paymentMethod, ?string $bkashTxn = null, ?string $screenshotPath = null): int
     {
         $items = Cart::items();
@@ -75,17 +77,90 @@ final class Order
 
     public static function findForTracking(string $code, string $phone): ?array
     {
-        $order = self::findByCode($code);
-        if (!$order) return null;
+        return self::findOrderForTracking($code, $phone, false);
+    }
 
-        try {
-            $storedPhone = Validation::phone((string) $order['phone']);
-            $submittedPhone = Validation::phone($phone);
-        } catch (\InvalidArgumentException $e) {
+    public static function findForTrackingByContact(string $code, string $contact): ?array
+    {
+        return self::findOrderForTracking($code, $contact, true);
+    }
+
+    private static function findOrderForTracking(string $code, string $contact, bool $allowEmail): ?array
+    {
+        $ipHash = hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+        if (self::isTrackingBlocked($ipHash)) {
             return null;
         }
 
-        return hash_equals($storedPhone, $submittedPhone) ? $order : null;
+        $order = self::findByCode($code);
+        if (!$order) {
+            self::recordTrackingFailure($ipHash);
+            return null;
+        }
+
+        $matches = false;
+        if ($allowEmail && filter_var($contact, FILTER_VALIDATE_EMAIL)) {
+            $storedEmail = strtolower(trim((string) ($order['email'] ?? '')));
+            $submittedEmail = strtolower(trim($contact));
+            $matches = $storedEmail !== '' && hash_equals($storedEmail, $submittedEmail);
+        } else {
+            try {
+                $storedPhone = Validation::phone((string) $order['phone']);
+                $submittedPhone = Validation::phone($contact);
+                $matches = hash_equals($storedPhone, $submittedPhone);
+            } catch (\InvalidArgumentException $e) {
+                $matches = false;
+            }
+        }
+
+        if (!$matches) {
+            self::recordTrackingFailure($ipHash);
+            return null;
+        }
+
+        return $order;
+    }
+
+    private static function isTrackingBlocked(string $ipHash): bool
+    {
+        $blockedUntil = Database::fetchValue(
+            'SELECT blocked_until FROM order_tracking_attempts WHERE ip_hash=? AND blocked_until > NOW()',
+            [$ipHash]
+        );
+        return $blockedUntil !== null;
+    }
+
+    private static function recordTrackingFailure(string $ipHash): void
+    {
+        Database::execute(
+            'INSERT INTO order_tracking_attempts (ip_hash, failed_attempts, window_started_at, updated_at)
+             VALUES (?, 1, NOW(), NOW())
+             ON DUPLICATE KEY UPDATE
+                blocked_until = IF(
+                    window_started_at < DATE_SUB(NOW(), INTERVAL 15 MINUTE),
+                    NULL,
+                    IF(failed_attempts >= ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE), blocked_until)
+                ),
+                failed_attempts = IF(
+                    window_started_at < DATE_SUB(NOW(), INTERVAL 15 MINUTE),
+                    1,
+                    failed_attempts + 1
+                ),
+                window_started_at = IF(
+                    window_started_at < DATE_SUB(NOW(), INTERVAL 15 MINUTE),
+                    NOW(),
+                    window_started_at
+                ),
+                updated_at = NOW()',
+            [$ipHash, self::TRACKING_MAX_FAILURES - 1]
+        );
+
+        if (random_int(1, 100) === 1) {
+            // Opportunistic cleanup avoids scanning the table for every failed lookup.
+            Database::execute(
+                'DELETE FROM order_tracking_attempts WHERE updated_at < DATE_SUB(NOW(), INTERVAL 1 DAY) LIMIT 100'
+            );
+        }
     }
 
     public static function items(int $orderId): array

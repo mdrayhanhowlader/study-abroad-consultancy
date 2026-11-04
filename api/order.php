@@ -54,6 +54,7 @@ try {
 
     App\Pixel::logEvent('InitiateCheckout', ['order_id' => $orderId, 'total' => App\Database::fetchValue('SELECT total FROM orders WHERE id=?', [$orderId])]);
 
+    $_SESSION['_order_thanks_code'] = $code;
     header('Location: ../thanks.php?code=' . urlencode($code), true, 303);
     exit;
 } catch (Throwable $e) {

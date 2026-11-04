@@ -147,9 +147,11 @@ final class DataAdapter
                 'icon'    => $r['icon'] ?: 'globe',
                 'title'   => $title,
                 'desc'    => $r['summary'] ?? '',
-                'body'    => $r['body'] ?? '',
+                'body'    => strip_tags((string) ($r['body'] ?? '')),
                 'cta_text'=> $r['cta_text'] ?? '',
-                'cta_href'=> $r['cta_href'] ?? '',
+                'cta_href'=> Validation::isSafeHref((string) ($r['cta_href'] ?? ''))
+                    ? $r['cta_href']
+                    : '',
             ];
         }
         return $out;

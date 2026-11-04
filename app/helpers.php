@@ -101,6 +101,6 @@ if (!function_exists('format_bdt')) {
 if (!function_exists('order_code')) {
     function order_code(): string
     {
-        return 'MAN-' . date('Ymd') . '-' . str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+        return 'MAN-' . date('Ymd') . '-' . bin2hex(random_bytes(12));
     }
 }

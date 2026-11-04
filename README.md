@@ -1,164 +1,198 @@
-# Manami Education — Study Abroad Consultancy Website
+# Manami Education website
 
-A production-ready study-abroad consultancy website for **Manami Education**, built with **PHP 8.x + MySQL/MariaDB + Tailwind CSS (CDN) + Alpine.js**. It includes a public-facing site, a student/order portal, and an admin dashboard.
+Server-rendered study-abroad consultancy website for Manami Education. The site includes public pages, an admin dashboard, a product catalogue and order flow, class-batch calendars, and an SSW application tracker.
 
-## Features
+This guide is the starting point for developers maintaining or deploying the project. Read the database and deployment warnings before running SQL on a populated site.
 
-- **Sticky header** with a compact 7-item desktop nav and mobile app-like drawer
-- **Mega-dropdowns** for Services and Destinations
-- **Shop section** combining Books and Courses
-- **Hero** with event countdown, visa-success badge, and animated globe
-- **Country grid** with hover image swap and flag chips
-- **Services** (Student Visa, SSW, TITP, Japanese Language, IELTS)
-- **Books & Courses** catalogue with cart and checkout
-- **Success Stories** section with animated student counter and sliding testimonials
-- **Blog / News** with article detail pages
-- **Contact & CTA forms** that save leads to the database
-- **FAQ accordion**, testimonials, stats counter, scroll reveal
-- **Multi-language** support (English, Japanese, Bengali)
-- **Admin dashboard** for content, orders, leads, and settings, including uploaded site logo and icons
-- **Mobile bottom navigation** for quick access
+## Technology and runtime
 
-## Tech stack
+- **PHP:** 8.0 or newer; PHP 8.2 is used in the local XAMPP environment.
+- **Database:** MySQL or MariaDB, accessed through PDO with native prepared statements.
+- **Web server:** Apache with `.htaccess`, `mod_rewrite`, `mod_headers`, and `mod_deflate` enabled.
+- **Frontend:** Server-rendered PHP, custom CSS in `assets/css/`, Tailwind Play CDN utilities, Alpine.js, and a small site script.
+- **Build/dependency manager:** None currently. There is no Composer, npm, or frontend build step.
 
-| Layer            | Tool                                           |
-| ---------------- | ---------------------------------------------- |
-| Server           | PHP 8.0+ (uses typed properties / match)       |
-| Database         | MySQL / MariaDB                                |
-| Styling          | Tailwind CSS via Play CDN + custom `style.css` |
-| Interactivity    | Alpine.js via CDN                              |
-| Fonts            | Google Fonts (Inter + Playfair Display)        |
-| Build            | **None**                                       |
+The app is intentionally organized around small PHP entry points and `App\...` classes. The bootstrap autoloader maps `App\Foo\Bar` to `app/Foo/Bar.php`; add application classes under that namespace and follow the existing file naming convention.
 
-## Run locally with XAMPP
+### External frontend dependencies
 
-1. Place this folder inside your XAMPP `htdocs`:
-   ```text
-   /Applications/XAMPP/xamppfiles/htdocs/study-abroad-consultancy/
+Tailwind, Alpine.js, and Google Fonts are currently loaded from external CDNs. Tailwind Play CDN is convenient for the current no-build setup, but Tailwind recommends compiling CSS for production. A future local asset build should be planned and tested across all public and admin pages before removing the CDN; do not simply delete it.
+
+## Repository map
+
+```text
+.
+├── index.php                 # Homepage entry point and homepage data loading
+├── *.php                     # Public pages: about, services, contact, legal, shop, etc.
+├── admin/                    # Admin routes and dashboard
+│   ├── _layout/              # Shared admin head, sidebar, topbar, and footer
+│   ├── content/              # Editable site content
+│   ├── leads/                # Lead inbox and lead details
+│   ├── orders/               # Order list and order details
+│   ├── products/             # Product CRUD
+│   ├── ssw/                  # Skilled Worker application workflow
+│   └── users/                # Admin user management
+├── api/                      # Form, cart, order, payment-return, and file endpoints
+├── app/                      # Application classes and shared bootstrap
+│   ├── Payment/              # Payment gateway interface and adapters
+│   ├── i18n/                 # English, Bengali, and Japanese translations
+│   └── bootstrap.php         # Helpers, autoloader, session, and language startup
+├── assets/
+│   ├── css/                  # Global styles and country flags
+│   ├── js/                   # Shared browser behavior
+│   └── img/                  # Static branding and PWA images
+├── blog/, books/, country/   # Slug-based detail-page controllers
+├── courses/                  # Legacy course-route redirects
+├── config/
+│   ├── config.php            # Runtime configuration (environment-aware)
+│   ├── schema.sql            # Fresh database schema and initial baseline rows
+│   └── migration.sql         # Additive schema changes for existing databases
+├── data/                     # Small PHP defaults/editor definitions still in use
+├── partials/                 # Shared public layout and homepage sections
+├── scripts/                  # CLI-only maintenance jobs
+├── uploads/                  # Runtime user uploads; do not commit uploaded files
+├── .htaccess                 # Apache routing, headers, compression, and access rules
+├── .editorconfig              # Basic editor consistency
+└── README.md                 # This guide
+```
+
+### Where to make common changes
+
+| Change | Main location |
+|---|---|
+| Public page or homepage section | Root page controller and relevant `partials/*.php` |
+| Shared navigation/footer | `partials/header.php`, `partials/topbar.php`, `partials/footer.php` |
+| Admin feature | Matching route under `admin/`; reuse `admin/_layout/` |
+| Database-backed content | `app/Content.php`, `app/DataAdapter.php`, and the corresponding admin route |
+| Business logic | A focused class under `app/` |
+| Request validation/security | `app/Validation.php`, `app/Csrf.php`, `app/Auth.php`, or the relevant endpoint |
+| Database structure | `config/schema.sql` for new installs; append compatible changes to `config/migration.sql` |
+| Translation | `app/i18n/{en-GB,bn,ja}.php` |
+| Static visual assets | `assets/css/`, `assets/js/`, and `assets/img/` |
+| Runtime secrets/settings | Server environment variables or protected admin settings; never commit secrets |
+
+`data/site.php`, `data/homepage_editor.php`, and `data/success_stories.php` still supply specific defaults/editor metadata. Most live content is stored in MySQL and edited from the dashboard. Do not add a second static copy of content that is already managed in the database.
+
+## Request and data flow
+
+1. A page or endpoint includes `app/bootstrap.php`.
+2. The bootstrap loads shared helpers, registers the `App\` class autoloader, starts the session, and boots language selection.
+3. Page controllers load content through application classes such as `App\DataAdapter`, `App\Content`, and `App\Settings`.
+4. Forms submit to a page controller or an endpoint in `api/`; state-changing requests should validate input and CSRF tokens before writes.
+5. Public templates escape text and attribute values with `h()`. Rich HTML must be explicitly sanitized/handled; do not render untrusted database content as raw HTML.
+
+Apache rewrite rules in `.htaccess` map `/blog/{slug}`, `/books/{slug}`, and `/country/{slug}` to their detail controllers. Legacy `/courses/{slug}` URLs redirect to the books catalogue; preserve that compatibility route unless external links are intentionally retired.
+
+## Local development
+
+### Requirements
+
+- PHP 8.0+ with `pdo`, `pdo_mysql`, `mbstring`, `fileinfo`, and `json`.
+- `curl` for Google Business Profile synchronization and remote payment integrations.
+- MySQL/MariaDB.
+- Apache with the required modules above.
+- GD is optional; image resizing is skipped when GD functions are unavailable.
+
+### XAMPP setup
+
+1. Put the project under XAMPP's `htdocs` directory and start Apache and MySQL.
+2. Create an empty development database:
+
+   ```sql
+   CREATE DATABASE manami_education
+     CHARACTER SET utf8mb4
+     COLLATE utf8mb4_unicode_ci;
    ```
-2. Start **Apache** and **MySQL** from the XAMPP Control Panel.
-3. Create the database and seed it:
+
+3. Import the schema and then the additive migration:
+
    ```bash
    /Applications/XAMPP/xamppfiles/bin/mysql -u root -p manami_education < config/schema.sql
    /Applications/XAMPP/xamppfiles/bin/mysql -u root -p manami_education < config/migration.sql
-   /Applications/XAMPP/xamppfiles/bin/mysql -u root -p manami_education < config/seed.sql
-   ```
-4. Open the site at:
-   ```text
-   http://localhost/study-abroad-consultancy/
    ```
 
-> Do **not** open `http://localhost/` — that is the XAMPP dashboard. Always use the full path above.
+   `schema.sql` includes baseline settings, catalog content, and an initial administrator account. It is for a **new, empty database only** and contains `DROP TABLE` statements. Never import it over a live database.
 
-## Admin access
+4. Configure local DB access in environment variables or `config/config.php`.
+5. Open `http://localhost/study-abroad-consultancy/` (not the XAMPP dashboard at `/`).
+6. Sign in to the dashboard and replace the initial administrator password before exposing any deployment.
 
-Admin credentials are not displayed on the sign-in page. Change any initial password immediately after first login.
+There is no `seed.sql`; baseline rows are part of `config/schema.sql`.
 
-## Google Business Profile reviews
+### Configuration
 
-Manual testimonials remain available in **Admin → Content → Testimonials**. Google reviews are stored separately, shown with a Google review label, and synchronized from the verified Business Profile location.
+`config/config.php` reads environment variables and provides development defaults. Set production values in the hosting control panel/environment rather than committing credentials:
 
-To enable automatic sync:
+| Variable | Purpose |
+|---|---|
+| `APP_ENV`, `APP_DEBUG`, `APP_URL`, `APP_KEY` | Runtime environment, error display, canonical base URL, app key |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` | MySQL connection |
+| `MAIL_FROM`, `MAIL_DRIVER` | Outgoing email configuration |
+| `BKASH_MODE`, `BKASH_MERCHANT` | bKash configuration |
+| `SSLCOMMERZ_STORE_ID`, `SSLCOMMERZ_STORE_PASS`, `SSLCOMMERZ_SANDBOX` | SSLCommerz credentials and mode |
+| `PRIVATE_BOOK_PREVIEW_PATH` | Absolute writable path outside the public web root for sample PDFs |
+| `GBP_ACCOUNT_ID`, `GBP_LOCATION_ID`, `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_REFRESH_TOKEN` | Optional Google Business Profile review sync |
 
-1. Enable the Google Business Profile API for a Google Cloud project and authorize an OAuth refresh token with the `https://www.googleapis.com/auth/business.manage` scope. The Google account must have access to the verified business location.
-2. Set these variables in the server environment (do not commit OAuth secrets):
-   - `GBP_ACCOUNT_ID`
-   - `GBP_LOCATION_ID`
-   - `GOOGLE_OAUTH_CLIENT_ID`
-   - `GOOGLE_OAUTH_CLIENT_SECRET`
-   - `GOOGLE_OAUTH_REFRESH_TOKEN`
-3. Apply `config/migration.sql` if the database has not received the `google_reviews` table yet.
-4. Run an initial sync with `php scripts/sync-google-reviews.php`, then schedule that command hourly using the host's cron service. Each sync fetches every page of reviews, updates changed reviews, and hides reviews no longer returned by Google.
+For production, set `APP_ENV=production`, `APP_DEBUG=false`, use a unique database user with only the required database privileges, configure HTTPS, and keep secret values out of the repository and web root. The hosting provider must honor the Apache access rules, or equivalent restrictions must be configured at the server level.
 
-The sync command exits with a non-zero status and reports an error if credentials or the Google API are unavailable. The map and manual testimonials do not depend on Google review API credentials.
+## Database changes
 
-## Book sample PDFs and student stories
+- **Fresh install:** create an empty database, import `config/schema.sql`, then `config/migration.sql`.
+- **Existing deployment:** take and verify a database backup, inspect the migration, then apply `config/migration.sql`. It is designed for additive schema updates; still test it on a copy of production data first.
+- Never re-import `schema.sql` on an existing site: it drops tables and data.
+- Keep schema changes backward-compatible where possible. Update this guide when adding required environment variables or operational steps.
 
-- Add or edit a book from **Admin → Products** and upload a short excerpt in **Book sample PDF**. Only PDFs up to 25 MB are accepted; upload sample pages, not the complete book.
-- Preview files are stored outside the public web directory. The web server/PHP user must be able to write to the configured path. Set `PRIVATE_BOOK_PREVIEW_PATH` to an absolute writable directory outside the web root if the default parent directory is not writable. PHP's `upload_max_filesize` and `post_max_size` must also allow uploads of up to 25 MB.
-- A customer can download a book's preview from **Track Order** only after the order is marked **Paid** or **Completed**. They verify with the order code and phone used at checkout. The PDF itself is streamed through the access-checking endpoint and is not linked as a public upload.
-- Add real student photos and story details from **Admin → Content → Student Success**. Active stories appear in the homepage gallery after saving. Obtain permission before publishing students' photos and quotes.
-- The homepage student count is set to **300+**. The migration updates the saved stats and success-section count so older saved values do not continue to show 1,200+.
+## Current application areas
 
-## Homepage features, class schedules, and SSW
+- **Homepage:** managed copy and visual features live under Admin → Homepage / Homepage Features; section markup is in `partials/`.
+- **Student success and testimonials:** dashboard-managed media/content; obtain permission before publishing identifiable student images.
+- **Books, courses, and orders:** the catalogue is in `books.php`; legacy `courses.php` and `/courses/{slug}` URLs redirect there. Product detail routes are in `books/`; order actions are handled in `api/` and business logic in `app/Order.php`.
+- **Order tracking:** public tracking uses order code plus phone/email contact checks and an IP-based failed-attempt limit. The limit requires the `order_tracking_attempts` table from the migration.
+- **Book previews:** private PDFs are streamed through `api/book-preview.php` after order and payment checks; do not place these PDFs under public `uploads/`.
+- **Class schedule:** staff manage batches and holidays in `admin/class-batches.php`; the public calendar is `batch-schedule.php`.
+- **SSW pipeline:** `app/SSW.php` contains workflow operations; admin pages are under `admin/ssw/`.
+- **Google reviews:** `scripts/sync-google-reviews.php` is CLI-only. Configure the GBP variables above and schedule it with the hosting cron service only after validating credentials and API access.
+- **Legacy quick-order URL:** `quick-order.php` redirects to `books.php`; keep this redirect unless external links and search indexing are intentionally retired.
+- **Legacy course URLs:** `courses.php` and `/courses/{slug}` redirect to `books.php`; keep these redirects unless external links and search indexing are intentionally retired.
+- **Browser/offline cache:** application responses use no-store headers and the service worker removes old Manami registrations/caches. Static asset caching is also disabled by the current Apache rules.
 
-- Manage the chairman profile and the Student Insights Facebook video at **Admin → Homepage Features**. The chairman section stays hidden until a name and portrait are configured and visibility is enabled. Use a public Facebook video permalink; arbitrary iframe URLs are rejected.
-- Publish class schedules at **Admin → Class Batches**. Add the batch ID, course, start date, duration, weekly class days, time, and location. The public calendar is available at `/batch-schedule.php`. Add government and campus holidays from the same dashboard; they are excluded from scheduled class days. Holiday dates are maintained manually, so check official announcements and update them for each batch.
-- Manage the SSW pipeline at **Admin → SSW Pipeline**. Staff can create applications directly or convert an existing SSW lead without re-entering the applicant's details. Application records support assignment, JLPT/skills test dates, employer and COA/visa references, departure date, notes, a document-status checklist, and an audit history of forward stage changes. The checklist tracks status only; it does not store passport or other document files.
-- On a new deployment, import `config/schema.sql`, then `config/migration.sql`, then `config/seed.sql`. For an existing deployment, back up the database and run `config/migration.sql` once; it creates the class schedule tables along with other additive application tables.
-- Browser caching and offline service-worker caching are disabled so content updates appear on refresh. Existing Manami service-worker registrations and their caches are removed automatically on the next visit.
+## Coding conventions
 
-## File structure
+- Keep request/response orchestration in page controllers; put reusable business rules in `App\...` classes.
+- Use one class per matching file under `app/`; namespace it consistently so the bootstrap autoloader can find it.
+- Use PDO prepared statements for variable SQL values. Do not concatenate request data into SQL.
+- Validate inputs server-side, check authorization at the mutation handler (not only in the UI), and verify CSRF tokens on state-changing browser requests.
+- Escape output at the template boundary. Treat database values as untrusted.
+- Keep public routes, rewrite targets, admin role checks, and translations consistent when changing a feature.
+- Avoid adding duplicated static content, unused compatibility code, or new runtime dependencies without a concrete need.
+- Update this README and relevant translation strings when a feature or deployment requirement changes.
 
-```
-study-abroad-consultancy/
-├── index.php                 # Home page
-├── about.php
-├── services.php
-├── destinations.php
-├── books.php                 # Shop — books
-├── courses.php               # Shop — courses
-├── blog.php
-├── faq.php
-├── contact.php
-├── login.php                 # Student/order tracking login
-├── admin/                    # Admin dashboard
-├── api/                      # Cart, checkout, leads, etc.
-├── app/                      # Core classes (DataAdapter, I18n, DB, etc.)
-├── assets/
-│   ├── css/
-│   ├── js/
-│   └── img/
-├── config/                   # schema.sql, migration.sql, seed.sql
-├── data/                     # Default arrays for site, nav, countries, etc.
-├── partials/                 # Header, footer, topbar, lang switcher
-├── uploads/                  # User-uploaded images
-└── README.md
+## Validation
+
+There is currently no PHPUnit/Pest suite, static analyzer, formatter, Composer manifest, or npm build configuration. Run the PHP parser across the project after PHP changes:
+
+```bash
+find . -type f -name '*.php' -not -path './uploads/*' -print0 | xargs -0 -n1 php -l
 ```
 
-## Customising content
+For route smoke tests with the local Apache server running:
 
-- **Brand & nav** → `data/site.php` and the `settings` table (`nav_json`)
-- **Translations** → `app/i18n/{en-GB,bn,hi,ja}.php`
-- **Countries** → `data/countries.php` + `countries` table
-- **Services** → `data/services.php`
-- **Books/Courses** → `books` and `courses` tables
-- **Posts** → `posts` table
+```bash
+curl -sS -o /dev/null -w '%{http_code} %{url_effective}\n' \
+  http://localhost/study-abroad-consultancy/
+```
 
-## Deployment to a live host
+Also manually exercise the affected public page, dashboard workflow, and form submission against a disposable development database. Syntax checks and HTTP status codes do not replace functional, accessibility, browser, or payment-provider tests.
 
-1. **Upload files** to the host's public directory (often `public_html/`).
-2. **Create a MySQL/MariaDB database** on the host and import:
-   - `config/schema.sql`
-   - `config/migration.sql`
-   - `config/seed.sql`
-3. **Update database credentials** in `config/config.php` or set environment variables:
-   ```php
-   'db' => [
-       'host'    => 'localhost',
-       'port'    => '3306',
-       'name'    => 'your_db_name',
-       'user'    => 'your_db_user',
-       'pass'    => 'your_db_password',
-       'charset' => 'utf8mb4',
-   ],
-   ```
-   Environment variables are also supported: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`.
-4. **Update site settings** in the database (`settings` table) or edit `data/site.php` for brand/contact details.
-5. **Ensure `.htaccess`** is uploaded and Apache `mod_rewrite` is enabled.
-6. **Change the default admin password** after first login.
+## Deployment checklist
 
-### Required PHP extensions
-
-- `pdo`
-- `pdo_mysql`
-- `mbstring`
-- `json`
-
-## Notes
-
-- The project no longer uses the old static-data-only architecture; it is now database-driven.
-- Country flag CSS classes are approximations — replace with SVG flags if needed.
-- Hot-linked Unsplash images are for demo only; upload production images to `uploads/`.
-- For production, consider switching from the Tailwind Play CDN to a built CSS file.
-# study-abroad-consultancy
+- [ ] Back up the current database and uploaded files.
+- [ ] Deploy the PHP files and apply the reviewed migration to the target database.
+- [ ] Set production environment variables and remove development credentials.
+- [ ] Confirm PHP version/extensions and writable upload/private-PDF directories.
+- [ ] Confirm HTTPS, Apache rewrites, headers, and protected paths work on the actual host.
+- [ ] Change/verify administrator credentials and remove unused accounts.
+- [ ] Verify mail delivery and any payment gateway in sandbox before enabling live payments.
+- [ ] Verify a public order lookup, a paid-order preview authorization, batch calendar, and admin edit flows.
+- [ ] Review logs, upload permissions, backups, and hosting cron configuration.
+- [ ] Test the site from outside the hosting account; local XAMPP checks cannot validate Hostinger behavior.

@@ -23,6 +23,7 @@ DROP TABLE IF EXISTS services;
 DROP TABLE IF EXISTS countries;
 DROP TABLE IF EXISTS banners;
 DROP TABLE IF EXISTS media;
+DROP TABLE IF EXISTS order_tracking_attempts;
 DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS settings;
@@ -48,6 +49,15 @@ CREATE TABLE login_attempts (
     attempted_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_ip_time (ip, attempted_at),
     INDEX idx_email_time (email, attempted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE order_tracking_attempts (
+    ip_hash           CHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,
+    failed_attempts   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    window_started_at DATETIME NOT NULL,
+    blocked_until     DATETIME NULL,
+    updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_order_tracking_updated (updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE settings (
@@ -401,7 +411,7 @@ INSERT INTO settings (`key`,`value`) VALUES
 ('event_title',       'Manami Study Japan Expo 2026'),
 ('event_date',        DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 21 DAY), '%Y-%m-%d')),
 ('social_json',       '[{"label":"Facebook","href":"https://facebook.com/","icon":"facebook"},{"label":"Instagram","href":"https://instagram.com/","icon":"instagram"},{"label":"YouTube","href":"https://youtube.com/","icon":"youtube"},{"label":"TikTok","href":"https://tiktok.com/","icon":"tiktok"},{"label":"X","href":"https://x.com/","icon":"x"}]'),
-('nav_json',          '[{"key":"home","href":"index.php"},{"key":"quick_order","href":"quick-order.php"},{"key":"study_in_japan","children":[{"key":"student_visa","href":"services.php#student-visa"},{"key":"ssw","href":"services.php#ssw"},{"key":"titp","href":"services.php#titp"},{"key":"japanese_lang","href":"services.php#japanese"},{"key":"ielts","href":"services.php#ielts"}]},{"key":"destinations","children":[{"key":"destinations_page","href":"destinations.php"},{"key":"japan","href":"country/japan"},{"key":"australia","href":"country/australia"},{"key":"canada","href":"country/canada"},{"key":"united_kingdom","href":"country/united-kingdom"},{"key":"united_states","href":"country/united-states"},{"key":"europe","href":"country/europe"},{"key":"malaysia","href":"country/malaysia"},{"key":"south_korea","href":"country/south-korea"}]},{"key":"courses","href":"courses.php"},{"key":"books_courses","href":"books.php"},{"key":"events","href":"events.php"}]'),
+('nav_json',          '[{"key":"home","href":"index.php"},{"key":"study_in_japan","children":[{"key":"student_visa","href":"services.php#student-visa"},{"key":"ssw","href":"services.php#ssw"},{"key":"titp","href":"services.php#titp"},{"key":"japanese_lang","href":"services.php#japanese"},{"key":"ielts","href":"services.php#ielts"}]},{"key":"destinations","children":[{"key":"destinations_page","href":"destinations.php"},{"key":"japan","href":"country/japan"},{"key":"australia","href":"country/australia"},{"key":"canada","href":"country/canada"},{"key":"united_kingdom","href":"country/united-kingdom"},{"key":"united_states","href":"country/united-states"},{"key":"europe","href":"country/europe"},{"key":"malaysia","href":"country/malaysia"},{"key":"south_korea","href":"country/south-korea"}]},{"key":"books_courses","href":"books.php"},{"key":"events","href":"events.php"}]'),
 ('stats_json',        '[{"label":"Students Placed","value":300},{"label":"Partner Institutions","value":85},{"label":"Courses Available","value":240},{"label":"Visa Success Rate","value":"99%"}]'),
 ('logo_image_id',     ''),
 ('favicon_image_id',     ''),

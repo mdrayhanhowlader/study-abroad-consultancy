@@ -43,4 +43,26 @@ final class Validation
         $v = preg_replace('/[^a-z0-9]+/', '-', $v) ?? '';
         return trim($v, '-');
     }
+
+    public static function isSafeHref(string $value): bool
+    {
+        $value = trim($value);
+        if ($value === '' || preg_match('/[\x00-\x20\x7f\\\\]/', $value)) {
+            return false;
+        }
+
+        $parts = parse_url($value);
+        if ($parts === false) {
+            return false;
+        }
+
+        if (isset($parts['scheme'])) {
+            return in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+                && !empty($parts['host'])
+                && !isset($parts['user'])
+                && !isset($parts['pass']);
+        }
+
+        return !isset($parts['host']) && !str_starts_with($value, '//');
+    }
 }
